@@ -1,0 +1,5 @@
+[run]
+include =
+    src/priwo/*
+omit =
+    src/priwo/_version.py
