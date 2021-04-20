@@ -3,6 +3,7 @@
 ![Tests][tests]
 [![Coverage Status][coveralls-badge]][coveralls]
 [![Code style: black][black-badge]][black]
+[![Gitmoji][gitmoji-badge]][gitmoji]
 
 ## I/O for common pulsar data formats
 
@@ -11,6 +12,8 @@
 [tests]: https://github.com/astrogewgaw/priwo/actions/workflows/tests.yaml/badge.svg
 [black]: https://github.com/psf/black
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[gitmoji]: https://gitmoji.dev
+[gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square
 [coveralls]: https://coveralls.io/github/astrogewgaw/priwo?branch=main
 [coveralls-badge]: https://coveralls.io/repos/github/astrogewgaw/priwo/badge.svg?branch=main
 
