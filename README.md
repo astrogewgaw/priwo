@@ -14,7 +14,7 @@
 * [**presto**][presto] frequency/power spectra (`*.fft` files).
 * [**sigproc**][sigproc] frequency/power spectra (`*.spec` files).
 
-More formats (such as [**presto**][presto]'s `*.pfd` files for folded data, [**sigproc**][sigproc]'s filterbank files for frequency-time arrays, [**PSRFITS**][psrfits] format files for both *fold* and *search* modes, and so on) are on the way :grin: ! If you have any data formats in mind that you would like to see support for, do not hestitate to drop in to the [**discussions**][discussions] page for this very repository. This package is still very much in development, so the api may be subject to frequent breaking changes (at least until the first release, which is coming soon!).
+The package provides simple functions for each data format, and outputs a dictionary with all the data and metadata. The data is read in as a n-dimensional [**numpy**][numpy] array. I will add some simple documentation pretty soon. More formats (such as [**presto**][presto]'s `*.pfd` files for folded data, [**sigproc**][sigproc]'s filterbank files for frequency-time arrays, [**PSRFITS**][psrfits] format files for both *fold* and *search* modes, and so on) are on the way :grin: ! If you have any data formats in mind that you would like to see support for, do not hestitate to drop in to the [**discussions**][discussions] page for this very repository. This package is still very much in development, so the api may be subject to frequent breaking changes (at least until the first release, which is coming soon!).
 
 [discussions]: https://github.com/astrogewgaw/priwo/discussions
 
@@ -26,6 +26,7 @@ More formats (such as [**presto**][presto]'s `*.pfd` files for folded data, [**s
 [coveralls]: https://coveralls.io/github/astrogewgaw/priwo?branch=main
 [coveralls-badge]: https://coveralls.io/repos/github/astrogewgaw/priwo/badge.svg?branch=main
 
+[numpy]: https://numpy.org/
 [priwo]: https://github.com/astrogewgaw/priwo
 [presto]: https://github.com/scottransom/presto
 [sigproc]: http://sigproc.sourceforge.net/
