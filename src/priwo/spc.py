@@ -20,12 +20,12 @@ def read_spc(f: Union[str, Path]) -> Dict:
 
     """"""
 
-    spec: Dict = {}
-    spec.update(read_sigproc(f))
+    spc: Dict = {}
+    spc.update(read_sigproc(f))
 
     with open(f, "rb") as fobj:
-        fobj.seek(spec["size"])
-        nbits = spec.get("nbits", None)
+        fobj.seek(spc["size"])
+        nbits = spc.get("nbits", None)
         if nbits:
             dtype = bitstodtypes[nbits]
             data = np.fromfile(
@@ -34,24 +34,24 @@ def read_spc(f: Union[str, Path]) -> Dict:
             ).astype(np.float32)
         else:
             data = np.fromfile(fobj, dtype=np.float32)
-    spec["data"] = data
+    spc["data"] = data
 
-    return spec
+    return spc
 
 
 def write_spc(
-    spec: Dict,
+    spc: Dict,
     f: Union[str, Path],
 ) -> None:
 
     """"""
 
-    cspec = spec.copy()
+    cspc = spc.copy()
 
-    data = cspec.pop("data")
-    write_sigproc(cspec, f)
+    data = cspc.pop("data")
+    write_sigproc(cspc, f)
     with open(f, "ab") as fobj:
-        nbits = cspec.get("nbits", None)
+        nbits = cspc.get("nbits", None)
         if nbits is not None:
             dtype = bitstodtypes[nbits]
             data.astype(dtype=dtype).tofile(fobj)

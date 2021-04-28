@@ -5,8 +5,9 @@ R/W *.bestprof files.
 import re
 import numpy as np
 
-from typing import Any, Dict, Tuple
-from schema import Or, Use, Schema  # type: ignore
+from pathlib import Path
+from schema import Or, Use, Schema
+from typing import Any, Dict, Union
 
 
 def string_regex(val: Any) -> Any:
@@ -160,15 +161,16 @@ def meta_dirty(m: Dict) -> Dict:
     return d
 
 
-def read_bestprof(f: str) -> Tuple:
+def read_bestprof(
+    f: Union[str, Path],
+) -> Dict:
 
     """"""
 
-    m: Dict[str, Any] = {}
+    d: Dict[str, Any] = {}
 
     metex = re.compile(r"^#.*", re.M)
     sepex = re.compile(r"\s+[=<>]\s+")
-    numeric_regex = re.compile(r"\d+\.\d+")
     datex = re.compile(r"^\s+\d+\s+(.+)$", re.M)
 
     with open(f, "r") as fobj:
@@ -181,58 +183,59 @@ def read_bestprof(f: str) -> Tuple:
 
     keys = bestprof_map.keys()
     values = [re.split(sepex, field)[-1] for field in meta]
-    m = {key: value for (key, value) in zip(keys, values)}
-    m = bestprof_schema.validate(m)
-    m["nsigma"] = m["nsigma"][-1]
-    m = meta_clean(m)
+    d = {key: value for (key, value) in zip(keys, values)}
+    d = bestprof_schema.validate(d)
+    d["nsigma"] = d["nsigma"][-1]
+    d = meta_clean(d)
 
-    d = np.asarray(data, dtype=np.float32)
+    d["data"] = np.asarray(data, dtype=np.float32)
 
-    return m, d
+    return d
 
 
 def write_bestprof(
-    m: Dict,
-    d: np.ndarray,
-    f: str,
+    d: Dict,
+    f: Union[str, Path],
 ) -> None:
 
     """"""
 
-    m = meta_dirty(m)
+    data = d.pop("data")
+
+    d = meta_dirty(d)
 
     text = bestprof_template.format(
-        fname=m["fname"],
-        candname=m["candname"],
-        telescope=m["telescope"],
-        eptopo=m["eptopo"],
-        epbary=m["epbary"],
-        tsamp=m["tsamp"],
-        nsamp=m["nsamp"],
-        davg=m["davg"],
-        dstd=m["dstd"],
-        nbins=m["nbins"],
-        profavg=m["profavg"],
-        profstd=m["profstd"],
-        chisqr=m["chisqr"],
-        nsigma=m["nsigma"],
-        dm=m["dm"],
-        ptopo=m["ptopo"],
-        pdtopo=m["pdtopo"],
-        pddtopo=m["pddtopo"],
-        pbary=m["pbary"],
-        pdbary=m["pdbary"],
-        pddbary=m["pddbary"],
-        porb=m["porb"],
-        asinc=m["asinc"],
-        eccen=m["eccen"],
-        wrad=m["wrad"],
-        tperi=m["tperi"],
+        fname=d["fname"],
+        candname=d["candname"],
+        telescope=d["telescope"],
+        eptopo=d["eptopo"],
+        epbary=d["epbary"],
+        tsamp=d["tsamp"],
+        nsamp=d["nsamp"],
+        davg=d["davg"],
+        dstd=d["dstd"],
+        nbins=d["nbins"],
+        profavg=d["profavg"],
+        profstd=d["profstd"],
+        chisqr=d["chisqr"],
+        nsigma=d["nsigma"],
+        dm=d["dm"],
+        ptopo=d["ptopo"],
+        pdtopo=d["pdtopo"],
+        pddtopo=d["pddtopo"],
+        pbary=d["pbary"],
+        pdbary=d["pdbary"],
+        pddbary=d["pddbary"],
+        porb=d["porb"],
+        asinc=d["asinc"],
+        eccen=d["eccen"],
+        wrad=d["wrad"],
+        tperi=d["tperi"],
     )
 
     with open(f, "w+") as fobj:
         fobj.write(text)
-        for ind, point in enumerate(d):
+        for ind, point in enumerate(data):
             fobj.write(
                 "{ind:>5}  {point}\n".format(
                     ind=ind,
