@@ -5,8 +5,8 @@ R/W *.fft files.
 import numpy as np
 
 from pathlib import Path
-from typing import Dict, Tuple, Optional
-from priwo.meta import read_inf, write_inf
+from typing import Dict, Union
+from .inf import read_inf, write_inf
 
 
 def read_fft(f: str) -> Dict:
@@ -19,8 +19,7 @@ def read_fft(f: str) -> Dict:
     if not inf.exists():
         msg = "No corresponding *.inf file found. Exiting..."
         raise OSError(msg)
-    fft["inf"] = str(inf)
-    fft.update(read_inf(fft["inf"]))
+    fft.update(read_inf(inf))
 
     with open(f, "rb") as fobj:
         data = np.fromfile(
@@ -34,17 +33,19 @@ def read_fft(f: str) -> Dict:
 
 def write_fft(
     fft: Dict,
-    f: Optional[str] = None,
+    f: Union[str, Path],
 ) -> None:
 
     """"""
 
-    data = fft.pop("data")
+    cfft = fft.copy()
 
-    inf = fft["inf"]
-    if not f:
-        f = str(Path(inf).with_suffix(".dat"))
-    write_inf(fft, inf)
+    data = cfft.pop("data")
+
+    write_inf(
+        cfft,
+        Path(f).with_suffix(".inf"),
+    )
 
     with open(f, "wb+") as fobj:
         data.tofile(fobj)

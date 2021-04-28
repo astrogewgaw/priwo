@@ -4,8 +4,10 @@ R/W SIGPROC metadata.
 
 import numpy as np
 
-from typing import Any, Dict, Optional
-from construct import (  # type: ignore
+from pathlib import Path
+from typing import Any, Dict, Union
+
+from construct import (
     this,
     Const,
     Switch,
@@ -19,6 +21,7 @@ from construct import (  # type: ignore
     Container,
     PascalString,
 )
+
 
 telescope_ids = {
     "Fake": 0,
@@ -195,11 +198,11 @@ def float_coord(f: float) -> float:
     x = abs(f)
     hh, x = divmod(x, 10000.0)
     mm, ss = divmod(x, 100.0)
-    return sign * (hh + mm / 60.0 + ss / 3600.0)
+    return float(sign * (hh + mm / 60.0 + ss / 3600.0))
 
 
 def read_sigproc(
-    f: str,
+    f: Union[str, Path],
     endian: str = "little",
 ) -> Dict[str, Any]:
 
@@ -231,15 +234,15 @@ def read_sigproc(
 
 def write_sigproc(
     sig: Dict[str, Any],
-    f: str,
+    f: Union[str, Path],
     endian: str = "little",
 ) -> None:
 
     """"""
 
-    raj = sig.pop("raj")
-    decj = sig.pop("decj")
-    size = sig.pop("size")
+    sig.pop("raj")
+    sig.pop("decj")
+    sig.pop("size")
 
     with open(f, "wb+") as fobj:
         start_flag(endian).build_stream(None, fobj)

@@ -4,12 +4,14 @@ R/W *.inf files.
 
 import re
 
+from pathlib import Path
+
 from typing import (
     Any,
     List,
     Dict,
     Tuple,
-    Optional,
+    Union,
 )
 
 
@@ -67,7 +69,7 @@ getmap = {
 putmap = {nvar: dvar for dvar, (nvar, tvar) in getmap.items()}
 
 
-def read_inf(f: str) -> Dict:
+def read_inf(f: Union[str, Path]) -> Dict:
 
     """"""
 
@@ -113,7 +115,7 @@ def read_inf(f: str) -> Dict:
 
 def write_inf(
     inf: Dict[str, Any],
-    f: str,
+    f: Union[str, Path],
 ) -> None:
 
     """"""

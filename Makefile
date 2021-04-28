@@ -40,7 +40,7 @@ upload_test: ## Upload the distribution source to the TEST PyPI
 upload: ## Upload the distribution source to the REAL PyPI
 	twine upload dist/*
 
-test: ## Run the unit tests and print a coverage report
-	pytest --cov --verbose --cov-report term-missing ${TESTS_DIR}
+tests: ## Run the unit tests and print a coverage report
+	pytest -vv --cov --cov-report term-missing ${TESTS_DIR}
 
 .PHONY: dist install uninstall help clean upload upload_test tests
