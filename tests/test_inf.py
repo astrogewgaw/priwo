@@ -79,7 +79,9 @@ reads = {
 
 def test_read_inf(datadir):
 
-    """"""
+    """
+    Test reading in a `*.inf` file.
+    """
 
     for fname, fdata in reads.items():
         inf = read_inf(datadir.joinpath(fname))
@@ -88,7 +90,9 @@ def test_read_inf(datadir):
 
 def test_write_inf(datadir):
 
-    """"""
+    """
+    Test writing out a `*.inf` file.
+    """
 
     for fname, fdata in reads.items():
         with NamedTemporaryFile(suffix=".inf") as tfobj:
