@@ -1,7 +1,8 @@
 import numpy as np
 
-from typing import Dict
-from priwo.meta import read_sigproc, write_sigproc
+from pathlib import Path
+from typing import Dict, Union
+from .sigproc import read_sigproc, write_sigproc
 
 
 bitstodtypes = {
@@ -11,7 +12,7 @@ bitstodtypes = {
 }
 
 
-def read_tim(f: str) -> Dict:
+def read_tim(f: Union[str, Path]) -> Dict:
 
     """"""
 
@@ -21,7 +22,7 @@ def read_tim(f: str) -> Dict:
     with open(f, "rb") as fobj:
         fobj.seek(tim["size"])
         nbits = tim.get("nbits", None)
-        if nbits:
+        if nbits is not None:
             dtype = bitstodtypes[nbits]
             data = np.fromfile(
                 fobj,
@@ -36,12 +37,20 @@ def read_tim(f: str) -> Dict:
 
 def write_tim(
     tim: Dict,
-    f: str,
+    f: Union[str, Path],
 ) -> None:
 
     """"""
 
-    data = tim.pop("data")
-    write_sigproc(tim, f)
+    ctim = tim.copy()
+
+    data = ctim.pop("data")
+    write_sigproc(ctim, f)
+
     with open(f, "ab") as fobj:
-        data.tofile(fobj)
+        nbits = ctim.get("nbits", None)
+        if nbits is not None:
+            dtype = bitstodtypes[nbits]
+            data.astype(dtype=dtype).tofile(fobj)
+        else:
+            data.astype(dtype=np.float32).tofile(fobj)

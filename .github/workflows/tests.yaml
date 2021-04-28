@@ -26,6 +26,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         make install
-        make test
+        make tests
         coveralls --service=github
-

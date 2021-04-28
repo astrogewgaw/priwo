@@ -8,7 +8,16 @@ from setuptools import setup, find_packages
 
 here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "README.md").read_text(encoding="utf-8")
-install_requires = ["astropy", "schema", "construct"]
+
+install_requires = ["numpy", "schema", "construct"]
+
+extra_requires = {
+    "dev": [
+        "pytest",
+        "deepdiff",
+        "pytest-cov",
+    ]
+}
 
 
 setup(
@@ -40,6 +49,7 @@ setup(
     install_package_data=True,
     python_requires=">=3.5, <4",
     install_requires=install_requires,
+    extra_requires=extra_requires,
     project_urls={
         "Source": "https://github.com/astrogewgaw/priwo",
         "Bug Reports": "https://github.com/astrogewgaw/priwo/issues",

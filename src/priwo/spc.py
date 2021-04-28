@@ -1,11 +1,12 @@
 """
-R/W *.spec files.
+R/W *.spc files.
 """
 
 import numpy as np
 
-from typing import Dict, Tuple
-from priwo.meta import read_sigproc, write_sigproc
+from pathlib import Path
+from typing import Dict, Union
+from .sigproc import read_sigproc, write_sigproc
 
 
 bitstodtypes = {
@@ -15,7 +16,7 @@ bitstodtypes = {
 }
 
 
-def read_spec(f: str) -> Dict:
+def read_spc(f: Union[str, Path]) -> Dict:
 
     """"""
 
@@ -38,14 +39,21 @@ def read_spec(f: str) -> Dict:
     return spec
 
 
-def write_spec(
+def write_spc(
     spec: Dict,
-    f: str,
+    f: Union[str, Path],
 ) -> None:
 
     """"""
 
-    data = spec.pop("data")
-    write_sigproc(spec, f)
+    cspec = spec.copy()
+
+    data = cspec.pop("data")
+    write_sigproc(cspec, f)
     with open(f, "ab") as fobj:
-        data.tofile(fobj)
+        nbits = cspec.get("nbits", None)
+        if nbits is not None:
+            dtype = bitstodtypes[nbits]
+            data.astype(dtype=dtype).tofile(fobj)
+        else:
+            data.astype(dtype=np.float32).tofile(fobj)
