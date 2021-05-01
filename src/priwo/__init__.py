@@ -1,3 +1,5 @@
+from typing import Dict, Callable
+
 from .inf import read_inf, write_inf
 from .dat import read_dat, write_dat
 from .tim import read_tim, write_tim
@@ -9,7 +11,7 @@ from .psrfits import read_psrfits, write_psrfits
 from .bestprof import read_bestprof, write_bestprof
 
 
-exts = {
+exts: Dict[str, Callable] = {
     ".inf": read_inf,
     ".dat": read_dat,
     ".tim": read_tim,

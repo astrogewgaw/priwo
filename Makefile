@@ -9,7 +9,7 @@ dist: ## Build source distribution
 # NOTE: -e installs in "Development Mode".
 # See: https://packaging.python.org/tutorials/installing-packages/
 install: ## Install the package in development mode
-	pip install -e .[dev]
+	pip install -e .
 
 # NOTE: remove the .egg-info directory from src/.
 uninstall: ## Uninstall the package
