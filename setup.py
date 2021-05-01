@@ -57,7 +57,7 @@ setup(
     install_requires=install_requires,
     extra_requires=extra_requires,
     entry_points={
-        "console_scripts": ["priwo=priwo.cli:cli"],
+        "console_scripts": ["priwo=priwo.cli:main"],
     },
     project_urls={
         "Source": "https://github.com/astrogewgaw/priwo",
