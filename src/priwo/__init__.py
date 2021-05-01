@@ -1,5 +1,3 @@
-from .core import unpack
-
 from .inf import read_inf, write_inf
 from .dat import read_dat, write_dat
 from .tim import read_tim, write_tim
@@ -11,30 +9,38 @@ from .psrfits import read_psrfits, write_psrfits
 from .bestprof import read_bestprof, write_bestprof
 
 
-__all__ = ["unpack"]
+exts = {
+    ".inf": read_inf,
+    ".dat": read_dat,
+    ".tim": read_tim,
+    ".fft": read_fft,
+    ".spc": read_spc,
+    ".pfd": read_pfd,
+    ".fil": read_sigproc,
+    ".bestprof": read_bestprof,
+}
 
-__all__.extend(
-    [
-        "read_inf",
-        "write_inf",
-        "read_dat",
-        "write_dat",
-        "read_tim",
-        "write_tim",
-        "read_fft",
-        "write_fft",
-        "read_pfd",
-        "write_pfd",
-        "read_spc",
-        "write_spc",
-        "read_sigproc",
-        "write_sigproc",
-        "read_psrfits",
-        "write_psrfits",
-        "read_bestprof",
-        "write_bestprof",
-    ]
-)
+
+__all__ = [
+    "read_inf",
+    "write_inf",
+    "read_dat",
+    "write_dat",
+    "read_tim",
+    "write_tim",
+    "read_fft",
+    "write_fft",
+    "read_pfd",
+    "write_pfd",
+    "read_spc",
+    "write_spc",
+    "read_sigproc",
+    "write_sigproc",
+    "read_psrfits",
+    "write_psrfits",
+    "read_bestprof",
+    "write_bestprof",
+]
 
 from ._version import get_versions  # type: ignore
 

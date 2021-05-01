@@ -9,7 +9,13 @@ from setuptools import setup, find_packages
 here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
-install_requires = ["numpy", "schema", "construct"]
+install_requires = [
+    "rich",
+    "click",
+    "numpy",
+    "schema",
+    "construct",
+]
 
 extra_requires = {
     "dev": [
@@ -50,6 +56,9 @@ setup(
     python_requires=">=3.5, <4",
     install_requires=install_requires,
     extra_requires=extra_requires,
+    entry_points={
+        "console_scripts": ["priwo=priwo.cli:cli"],
+    },
     project_urls={
         "Source": "https://github.com/astrogewgaw/priwo",
         "Bug Reports": "https://github.com/astrogewgaw/priwo/issues",
