@@ -9,6 +9,18 @@ from .psrfits import read_psrfits, write_psrfits
 from .bestprof import read_bestprof, write_bestprof
 
 
+exts = {
+    ".inf": read_inf,
+    ".dat": read_dat,
+    ".tim": read_tim,
+    ".fft": read_fft,
+    ".spc": read_spc,
+    ".pfd": read_pfd,
+    ".fil": read_sigproc,
+    ".bestprof": read_bestprof,
+}
+
+
 __all__ = [
     "read_inf",
     "write_inf",
