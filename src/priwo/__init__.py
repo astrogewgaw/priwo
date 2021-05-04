@@ -8,6 +8,7 @@ from .pfd import read_pfd, write_pfd
 from .spc import read_spc, write_spc
 from .sigproc import read_sigproc, write_sigproc
 from .psrfits import read_psrfits, write_psrfits
+from .polycos import read_polycos, write_polycos
 from .bestprof import read_bestprof, write_bestprof
 
 
@@ -40,6 +41,8 @@ __all__ = [
     "write_sigproc",
     "read_psrfits",
     "write_psrfits",
+    "read_polycos",
+    "write_polycos",
     "read_bestprof",
     "write_bestprof",
 ]
