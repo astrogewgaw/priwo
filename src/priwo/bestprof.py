@@ -7,7 +7,7 @@ import numpy as np
 
 from pathlib import Path
 from schema import Or, Use, Schema
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union, Optional
 
 
 def string_regex(val: Any) -> Any:
@@ -18,7 +18,7 @@ def string_regex(val: Any) -> Any:
         return val
 
 
-def numeric_regex(str: str) -> Any:
+def numeric_regex(s: str) -> Optional[Union[float, List[float]]]:
     numeric_regex = re.compile(
         """
         [+-]                # Match a `+` or a `-`.
@@ -33,12 +33,12 @@ def numeric_regex(str: str) -> Any:
         """,
         re.X,
     )
-    nums = re.findall(numeric_regex, str)
+    nums = re.findall(numeric_regex, s)
     if nums:
         if len(nums) == 1:
-            return nums[0]
+            return float(nums[0])
         else:
-            return nums
+            return [float(_) for _ in nums]
     else:
         return None
 
