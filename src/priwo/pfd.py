@@ -4,10 +4,10 @@ R/W PFD files.
 
 import numpy as np
 
-from typing import Dict
 from pathlib import Path
+from typing import Dict, Union
 
-from construct import (  # type: ignore
+from construct import (
     this,
     Struct,
     Int32ul,
@@ -99,7 +99,7 @@ def pfdstruct(endian: str) -> Struct:
 
 
 def read_pfd(
-    f: str,
+    f: Union[str, Path],
     endian: str = "little",
 ) -> Dict:
 
@@ -126,7 +126,7 @@ def read_pfd(
 
 def write_pfd(
     d: Dict,
-    f: str,
+    f: Union[str, Path],
     endian: str = "little",
 ) -> None:
 
