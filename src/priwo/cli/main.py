@@ -1,28 +1,81 @@
 import click
+import priwo
+import pathlib
+
+from .riches import pretty
 
 
-@click.group()
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+
+@click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version=priwo.__version__)
 def main():
 
     """
     The priwo command line tool.
-
-    This allows the user to access a part of priwo's functionality via
-    the command line. It houses two sub-commands:
-
-        peek:
-
-            This allows the user to take a peek into any pulsar data file
-            whose format is supported by `priwo`. The data is printed to
-            the terminal with full ANSI color highlighting, thanks to the
-            `rich` module.
-
-        conv:
-
-            This allows the user to convert pulsar data from a particular
-            format into another (provided `priwo` supports said conversion).
-            These conversions can also be achieved programatically (check
-            out the documentation for some examples).
     """
 
     pass
+
+
+@main.command()
+def max():
+
+    """
+    Show the maximum size set in priwo.
+    """
+
+    priwo.max_size()
+
+
+@main.command()
+def available():
+
+    """
+    Show the available formats in priwo.
+    """
+
+    priwo.available_formats()
+
+
+@main.command()
+@click.option(
+    "-e",
+    "--ext",
+    type=str,
+    default="",
+    required=False,
+)
+@click.argument(
+    "fname",
+    type=click.Path(
+        exists=True,
+        readable=True,
+        writable=False,
+        file_okay=True,
+        dir_okay=False,
+        allow_dash=True,
+        resolve_path=True,
+    ),
+)
+def peek(
+    ext: str,
+    fname: str,
+):
+
+    """
+    Take a peek into any pulsar data file.
+    """
+
+    try:
+        if ext == "":
+            ext = pathlib.Path(fname).suffix
+        else:
+            ext = "".join([".", ext])
+        pretty(
+            title=pathlib.Path(fname).name,
+            contents=priwo.PRIWO_EXTS[ext](fname),
+        )
+    except KeyError:
+        pass
