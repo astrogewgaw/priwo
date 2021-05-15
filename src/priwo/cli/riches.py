@@ -84,7 +84,7 @@ def make_grid(content: Dict) -> Table:
 
     """"""
 
-    grid = Table.grid(expand=True)
+    grid = Table.grid(expand=False)
 
     grid.add_column()
     grid.add_column(justify="right")
@@ -116,22 +116,22 @@ def pretty(
     """"""
 
     if isinstance(contents, dict):
-        display = Panel(make_grid(contents), expand=True, title=title)
+        display = Panel(make_grid(contents), expand=False, title=title)
     elif isinstance(contents, list):
         display = Panel(
             Columns(
                 [
                     Panel(
                         make_grid(content),
-                        expand=True,
+                        expand=False,
                         title=str(ix + 1),
                     )
                     for ix, content in enumerate(contents)
                 ],
                 expand=True,
+                align="center",
             ),
             title=title,
-            expand=True,
         )
 
     console.print(display)
