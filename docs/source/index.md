@@ -1,4 +1,4 @@
-# Welcome to priwo's documentation
+# Documentation for *priwo*
 
 ```{toctree}
 :glob:
