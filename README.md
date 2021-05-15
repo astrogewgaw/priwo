@@ -5,8 +5,8 @@
 ![Python versions][pyversions]
 [![Gitmoji][gitmoji-badge]][gitmoji]
 [![Code style: black][black-badge]][black]
-[![Coverage Status][coveralls-badge]][coveralls]
 [![Documentation Status][docs-badge]][docs]
+[![Coverage Status][coveralls-badge]][coveralls]
 
 ## I/O for common pulsar data formats
 
@@ -40,7 +40,7 @@ git checkout dev
 make install
 ```
 
-The above series of commands will clone the repository to a folder named *priwo*, swithc to it as the current working directory, and then checkout the *dev* branch, where all the development actually happens. The last command then installs the package in *development mode*; that is, the changes you make in the code will be immediately refelcted in your install of the package. `make install` requires the build tool, [**make**][make], to be installed. If you don't have that, you can just do:
+The above series of commands will clone the repository to a folder named *priwo*, switches to it as the current working directory, and then checks out the *dev* branch, where all the development actually happens. The last command then installs the package in *development mode*; that is, the changes you make in the code will be immediately reflected in your install of the package. `make install` requires the build tool, [**make**][make], to be installed. If you don't have that, you can just do:
 
 ```bash
 pip install -e .
@@ -52,24 +52,38 @@ This is exactly what `make install` runs for us.
 
 If you would like to contribute to priwo, you have to first *fork* the repository from GitHub, and then carry out the same steps as above, but this time with the URL of *your fork* in the `git clone` command. After that, switch to the *priwo* directory and run `pip install -e .` for a development install. After you have done all the changes you wanted to do, you can push the changes to your fork, and then send along a pull request to me! Just remember to go through this checklist first:
 
-* Lint code using [**black**][black].
-* Write tests in the *tests* directory. priwo uses [**pytest**][pytest] for its tests. You can also use [**deepdiff**][deepdiff] to help out if you are comparing two Python data structures (lists or dicts, for instance) and don't want to write a large number of assert statements. Check out the tests already written for inspiration.
+* Lint code using [**black**][black]. You can do that using either [**make**][make]:
+
+    ```bash
+    make lint
+    ```
+
+    or [**nox**][nox]:
+
+    ```bash
+    nox -s lint
+    ```
+
+* Write tests in the *tests* directory. priwo uses [**nox**][nox] and [**pytest**][pytest] for its tests. You can also use [**deepdiff**][deepdiff] to help out if you are comparing two Python data structures (lists or dicts, for instance) and don't want to write a large number of assert statements. Check out the tests already written for inspiration.
 * Run the tests to make sure everything is working, by doing:
 
     ```bash
     make tests
     ```
 
-    Or if you don't have [**make**][make], you can instead just run pytest directly, using:
+    Or if you don't have [**make**][make], you can instead just run [**nox**][nox] directly, using:
 
     ```bash
-    pytest
+    nox -s tests
     ```
+
+    This is exactly what `make tests` runs for us. [**nox**][nox] ensures that all test dependencies are installed, and automatically tests priwo over multiple Python versions. You should (ideally) test your fork over all the Python versions supported by priwo (that is, 3.6, 3.7, 3.8 and 3.9).
 
 ### Note
 
 1. priwo ensures that its functions return a dictionary for each particular pulsar data format they read, and the functions that write the files back out also accept dictionaries as inputs. This is a delibrate choice that I made, to ensure that other people (like you, for instance) can build your own abstractions on top of priwo's functionalities. priwo also likes to abide by the KISS and DRY principles as much as possible. Do keep this stuff in mind if you think of contributing.
-2. And, lastly, all contributions are welcome! This even includes PRs for spelling mistakes, if you spot any! If you are unsure, talk to me (via GitHub Discussions or email).
+2. All the above commands (involving `make` or `nox`) are run in the root directory of the package.
+3. And, lastly, all contributions are welcome! This even includes PRs for spelling mistakes, if you spot any! If you are unsure, talk to me (via [**GitHub Discussions**][discussions] or [**email**](ujjwalpanda97@gmail.com)).
 
 ## Issues
 
@@ -93,6 +107,7 @@ If you find any bugs :bug: in priwo, feel free to drop into the [**issues**][iss
 [gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square
 
 [numpy]: https://numpy.org/
+[nox]: https://nox.thea.codes/en/stable/
 [make]: https://www.gnu.org/software/make/
 [sigproc]: http://sigproc.sourceforge.net/
 [presto]: https://github.com/scottransom/presto
