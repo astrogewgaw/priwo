@@ -79,7 +79,7 @@ If you would like to contribute to priwo, you have to first *fork* the repositor
 
     This is exactly what `make tests` runs for us. [**nox**][nox] ensures that all test dependencies are installed, and automatically tests priwo over multiple Python versions. You should (ideally) test your fork over all the Python versions supported by priwo (that is, 3.6, 3.7, 3.8 and 3.9).
 
-### Note
+### Notes
 
 1. priwo ensures that its functions return a dictionary for each particular pulsar data format they read, and the functions that write the files back out also accept dictionaries as inputs. This is a delibrate choice that I made, to ensure that other people (like you, for instance) can build your own abstractions on top of priwo's functionalities. priwo also likes to abide by the KISS and DRY principles as much as possible. Do keep this stuff in mind if you think of contributing.
 2. All the above commands (involving `make` or `nox`) are run in the root directory of the package.
