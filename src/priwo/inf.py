@@ -71,7 +71,7 @@ putmap = {nvar: dvar for dvar, (nvar, tvar) in getmap.items()}
 
 def read_inf(f: Union[str, Path]) -> Dict:
 
-    """"""
+    """ """
 
     inf: Dict = {}
 
@@ -118,7 +118,7 @@ def write_inf(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     notes = inf.pop("notes")
     onoffs = inf.pop("onoffs")

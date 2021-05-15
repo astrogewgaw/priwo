@@ -87,7 +87,7 @@ def test_read_pfd(datadir):
 
 def test_write_pfd(datadir):
 
-    """"""
+    """ """
 
     with NamedTemporaryFile(suffix=".dat") as tfobj:
         write_pfd(

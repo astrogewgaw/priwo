@@ -22,7 +22,7 @@ NULL_TEXT = Text.from_markup("[bold bright_red]None")
 
 def str_highlighter(txt: str) -> Text:
 
-    """"""
+    """ """
 
     if txt:
         return Text.from_markup(f"[italic]{txt}")
@@ -32,14 +32,14 @@ def str_highlighter(txt: str) -> Text:
 
 def num_highlighter(val: Union[int, float]) -> Text:
 
-    """"""
+    """ """
 
     return Text.from_markup(f"[bold orange_red1]{str(val)}")
 
 
 def bool_highlighter(val: bool) -> Text:
 
-    """"""
+    """ """
 
     if val:
         return Text.from_markup("[bold bright_green]True")
@@ -49,7 +49,7 @@ def bool_highlighter(val: bool) -> Text:
 
 def list_highlighter(arr: List) -> Text:
 
-    """"""
+    """ """
 
     if arr:
         if len(arr) == 1:
@@ -63,7 +63,7 @@ def list_highlighter(arr: List) -> Text:
 
 def numpy_highlighter(arr: ndarray) -> Text:
 
-    """"""
+    """ """
 
     size = arr.size
     dims = " x ".join([str(dim) for dim in arr.shape])
@@ -82,7 +82,7 @@ highlighters: Dict[Union[type, Tuple[type, type]], Callable] = {
 
 def make_grid(content: Dict) -> Table:
 
-    """"""
+    """ """
 
     grid = Table.grid(expand=False)
 
@@ -113,7 +113,7 @@ def pretty(
     contents: Union[List, Dict],
 ) -> None:
 
-    """"""
+    """ """
 
     if isinstance(contents, dict):
         display = Panel(make_grid(contents), expand=False, title=title)
