@@ -32,7 +32,7 @@ fdata = np.asarray(
 
 def test_fft(datadir):
 
-    """"""
+    """ """
 
     data = read_fft(datadir.joinpath(fname))["data"]
     assert DeepDiff(fdata, data) == {}
@@ -40,7 +40,7 @@ def test_fft(datadir):
 
 def test_write_fft(datadir):
 
-    """"""
+    """ """
 
     with NamedTemporaryFile(suffix=".fft") as tfobj:
         write_fft(

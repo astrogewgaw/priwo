@@ -24,7 +24,7 @@ from construct import (
 
 def pfdstruct(endian: str) -> Struct:
 
-    """"""
+    """ """
 
     (Int32u, Float32, Float64) = {
         "big": (
@@ -130,6 +130,6 @@ def write_pfd(
     endian: str = "little",
 ) -> None:
 
-    """"""
+    """ """
 
     pfdstruct(endian).build_file(d, f)
