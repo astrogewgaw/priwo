@@ -34,7 +34,6 @@ def tests(session):
     session.install(
         "pytest",
         "pytest-cov",
-        "coveralls",
         "deepdiff",
     )
 
