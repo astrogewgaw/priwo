@@ -1,7 +1,5 @@
 # type: ignore
 
-from ._version import version
-
 from .core import (
     chunks,
     max_size,
