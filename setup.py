@@ -14,14 +14,6 @@ install_requires = [
     "construct",
 ]
 
-extra_requires = {
-    "dev": [
-        "pytest",
-        "deepdiff",
-        "pytest-cov",
-    ]
-}
-
 
 setup(
     name="priwo",
@@ -53,7 +45,6 @@ setup(
     install_package_data=True,
     python_requires=">=3.5, <4",
     install_requires=install_requires,
-    extra_requires=extra_requires,
     entry_points={
         "console_scripts": ["priwo=priwo.cli:main"],
     },
