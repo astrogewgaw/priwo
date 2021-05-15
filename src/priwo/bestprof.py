@@ -120,7 +120,7 @@ error_template = "{value:16} +/- {error}"
 
 def meta_clean(m: Dict) -> Dict:
 
-    """"""
+    """ """
 
     d = {}
 
@@ -137,7 +137,7 @@ def meta_clean(m: Dict) -> Dict:
 
 def meta_dirty(m: Dict) -> Dict:
 
-    """"""
+    """ """
 
     d = {}
 
@@ -165,7 +165,7 @@ def read_bestprof(
     f: Union[str, Path],
 ) -> Dict:
 
-    """"""
+    """ """
 
     d: Dict[str, Any] = {}
 
@@ -198,7 +198,7 @@ def write_bestprof(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     data = d.pop("data")
 

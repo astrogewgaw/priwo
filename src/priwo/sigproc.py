@@ -85,7 +85,7 @@ datatypes = {
 
 def sigproc_keys(endian: str) -> Dict[str, Struct]:
 
-    """"""
+    """ """
 
     (Int8u, Int32u, Float64) = {
         "big": (Int8ub, Int32ub, Float64b),
@@ -139,7 +139,7 @@ def sigproc_keys(endian: str) -> Dict[str, Struct]:
 
 def keystruct(endian: str) -> Struct:
 
-    """"""
+    """ """
 
     return Struct(
         "key"
@@ -160,7 +160,7 @@ def keystruct(endian: str) -> Struct:
 
 def start_flag(endian: str) -> Struct:
 
-    """"""
+    """ """
 
     return Const(
         "HEADER_START",
@@ -176,7 +176,7 @@ def start_flag(endian: str) -> Struct:
 
 def end_flag(endian: str) -> Struct:
 
-    """"""
+    """ """
 
     return Const(
         "HEADER_END",
@@ -192,7 +192,7 @@ def end_flag(endian: str) -> Struct:
 
 def float_coord(f: float) -> float:
 
-    """"""
+    """ """
 
     sign = np.sign(f)
     x = abs(f)
@@ -206,7 +206,7 @@ def read_sigproc(
     endian: str = "little",
 ) -> Dict[str, Any]:
 
-    """"""
+    """ """
 
     sig: Dict = {}
 
@@ -238,7 +238,7 @@ def write_sigproc(
     endian: str = "little",
 ) -> None:
 
-    """"""
+    """ """
 
     sig.pop("raj")
     sig.pop("decj")

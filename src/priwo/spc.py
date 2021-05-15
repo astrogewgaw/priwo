@@ -18,7 +18,7 @@ bitstodtypes = {
 
 def read_spc(f: Union[str, Path]) -> Dict:
 
-    """"""
+    """ """
 
     spc: Dict = {}
     spc.update(read_sigproc(f))
@@ -44,7 +44,7 @@ def write_spc(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     cspc = spc.copy()
 

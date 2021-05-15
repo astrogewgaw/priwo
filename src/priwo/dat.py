@@ -7,7 +7,7 @@ from .inf import read_inf, write_inf
 
 def read_dat(f: Union[str, Path]) -> Dict:
 
-    """"""
+    """ """
 
     dat: Dict = {}
 
@@ -39,7 +39,7 @@ def write_dat(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     cdat = dat.copy()
 

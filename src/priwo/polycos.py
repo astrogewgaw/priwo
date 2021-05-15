@@ -79,7 +79,7 @@ coeff_template = lambda num_coeff: "{:>25.16E}{:>25.16E}{:>25.16E}\n" * num_coef
 
 def read_polycos(f: Union[str, Path]) -> List[Dict]:
 
-    """"""
+    """ """
 
     with open(f, "r") as fobj:
 
@@ -164,7 +164,7 @@ def write_polycos(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     with open(f, "w+") as fobj:
         for polyco in polycos:

@@ -11,7 +11,7 @@ from .inf import read_inf, write_inf
 
 def read_fft(f: str) -> Dict:
 
-    """"""
+    """ """
 
     fft: Dict = {}
 
@@ -36,7 +36,7 @@ def write_fft(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     cfft = fft.copy()
 

@@ -14,7 +14,7 @@ bitstodtypes = {
 
 def read_tim(f: Union[str, Path]) -> Dict:
 
-    """"""
+    """ """
 
     tim: Dict = {}
     tim.update(read_sigproc(f))
@@ -40,7 +40,7 @@ def write_tim(
     f: Union[str, Path],
 ) -> None:
 
-    """"""
+    """ """
 
     ctim = tim.copy()
 
