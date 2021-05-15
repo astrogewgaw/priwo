@@ -1,7 +1,6 @@
 .DEFAULT_GOAL := help
 PKG = priwo
 PKG_DIR = src
-TESTS_DIR = tests
 
 dist: ## Build source distribution
 	python setup.py sdist bdist_wheel
@@ -40,7 +39,10 @@ upload_test: ## Upload the distribution source to the TEST PyPI
 upload: ## Upload the distribution source to the REAL PyPI
 	twine upload dist/*
 
-tests: ## Run the unit tests and print a coverage report
-	pytest -vv --cov --cov-report term-missing ${TESTS_DIR}
+lint: ## Blacken all files.
+	nox -s lint
 
-.PHONY: dist install uninstall help clean upload upload_test tests
+tests: ## Run the unit tests and print a coverage report
+	nox -s tests
+
+.PHONY: dist install uninstall help clean upload upload_test lint tests
