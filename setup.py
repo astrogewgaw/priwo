@@ -17,7 +17,7 @@ install_requires = [
 
 setup(
     name="priwo",
-    use_scm_version={"write_to": "src/priwo/_version.py"},
+    use_scm_version=True,
     setup_requires=["setuptools_scm"],
     description="I/O for common pulsar data formats",
     long_description=long_description,
