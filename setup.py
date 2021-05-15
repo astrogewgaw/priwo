@@ -1,7 +1,4 @@
-# type: ignore
-
 import pathlib
-import versioneer
 
 from setuptools import setup, find_packages
 
@@ -28,7 +25,8 @@ extra_requires = {
 
 setup(
     name="priwo",
-    version=versioneer.get_version(),
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
     description="I/O for common pulsar data formats",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -63,6 +61,6 @@ setup(
         "Source": "https://github.com/astrogewgaw/priwo",
         "Bug Reports": "https://github.com/astrogewgaw/priwo/issues",
     },
-    cmd_class=versioneer.get_cmdclass(),
+    cmd_class={},
     zip_safe=False,
 )
