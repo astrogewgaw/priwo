@@ -1,113 +1,137 @@
-from numpy import ndarray
 from rich.text import Text
 from rich.panel import Panel
 from rich.table import Table
-from rich.theme import Theme
+from rich.columns import Columns
 from rich.console import Console
-from typing import Dict, Callable
-from rich.highlighter import RegexHighlighter
 
-
-class DataHighlighter(RegexHighlighter):
-
-    """"""
-
-    base_style = "data."
-    highlights = [
-        r"(?P<colon>[:])",
-        r"(?P<true>^True$)",
-        r"(?P<false>^False$)",
-        r"(?P<numeral>^[-+]?[0-9]*[.]?[0-9]+([eE][-+]?[0-9]+)?)$",
-    ]
-
-
-theme = Theme(
-    {
-        "data.colon": "bold magenta",
-        "data.array": "bold white",
-        "data.true": "bold green",
-        "data.false": "bold red",
-        "data.numeral": "bold yellow",
-    }
-)
-console = Console(
-    highlighter=DataHighlighter(),
-    theme=theme,
+from numpy import ndarray
+from typing import (
+    List,
+    Dict,
+    Tuple,
+    Union,
+    Callable,
 )
 
 
-def working(func: Callable):
+console = Console()
+
+
+NULL_TEXT = Text.from_markup("[bold bright_red]None")
+
+
+def str_highlighter(txt: str) -> Text:
 
     """"""
 
-    def wrap(*args, **kwargs):
-        with console.status("Working..."):
-            func(*args, **kwargs)
+    if txt:
+        return Text.from_markup(f"[italic]{txt}")
+    else:
+        return NULL_TEXT
 
-    return wrap
 
-
-@working
-def pretty(
-    title: str,
-    content: Dict,
-):
+def num_highlighter(val: Union[int, float]) -> Text:
 
     """"""
 
-    high = DataHighlighter()
+    return Text.from_markup(f"[bold orange_red1]{str(val)}")
+
+
+def bool_highlighter(val: bool) -> Text:
+
+    """"""
+
+    if val:
+        return Text.from_markup("[bold bright_green]True")
+    else:
+        return Text.from_markup("[bold bright_red]False")
+
+
+def list_highlighter(arr: List) -> Text:
+
+    """"""
+
+    if arr:
+        if len(arr) == 1:
+            arr_str = str(arr[0])
+        else:
+            arr_str = "\n".join([str(i) for i in arr])
+        return Text.from_markup(f"[italic]{arr_str}")
+    else:
+        return NULL_TEXT
+
+
+def numpy_highlighter(arr: ndarray) -> Text:
+
+    """"""
+
+    size = arr.size
+    dims = " x ".join([str(dim) for dim in arr.shape])
+    return Text.from_markup(
+        f"Array of size [bold]{size}[/bold] and dimensions [bold]{dims}[/bold]"
+    )
+
+
+highlighters: Dict[Union[type, Tuple[type, type]], Callable] = {
+    str: str_highlighter,
+    list: list_highlighter,
+    ndarray: numpy_highlighter,
+    (int, float): num_highlighter,
+}
+
+
+def make_grid(content: Dict) -> Table:
+
+    """"""
 
     grid = Table.grid(expand=True)
-    grid.add_column(justify="left")
+
+    grid.add_column()
     grid.add_column(justify="right")
 
     for key, val in content.items():
 
-        lcol = Text(key)
-        lcol.stylize("bold")
+        left_col = f"[bold]{key}"
 
-        if isinstance(val, str):
+        for (
+            val_type,
+            val_highlighter,
+        ) in highlighters.items():
+            if isinstance(val, val_type) and not isinstance(val, bool):
+                right_col = val_highlighter(val)
 
-            rcol = Text(val)
-            rcol.stylize("italic")
+        if isinstance(val, bool):
+            right_col = bool_highlighter(val)
 
-        elif isinstance(val, (int, float)):
+        grid.add_row(left_col, right_col)
 
-            rcol = high(str(val))
+    return grid
 
-        elif isinstance(val, list):
 
-            if len(val) > 0:
-                rcol = Text("\n".join([str(_) for _ in val]))
-                rcol.stylize("italic")
-            else:
-                rcol = Text("None")
-                rcol.stylize("bold red")
+def pretty(
+    title: str,
+    contents: Union[List, Dict],
+) -> None:
 
-        elif isinstance(val, ndarray):
+    """"""
 
-            rcol = Text(
-                "Array of size {:d} and dimensions {:s}".format(
-                    val.size,
-                    " x ".join(["{:d}".format(_) for _ in val.shape]),
-                )
-            )
-
-        elif val is None:
-
-            rcol = Text("None")
-            rcol.stylize("bold red")
-
-        else:
-
-            rcol = Text(str(val))
-
-        grid.add_row(lcol, rcol)
-
-    console.print(
-        Panel(
-            grid,
-            expand=False,
+    if isinstance(contents, dict):
+        display = Panel(make_grid(contents), expand=True, title=title)
+    elif isinstance(contents, list):
+        display = Panel(
+            Columns(
+                [
+                    Panel(
+                        make_grid(content),
+                        expand=True,
+                        title=str(ix + 1),
+                    )
+                    for ix, content in enumerate(contents)
+                ],
+                expand=True,
+            ),
             title=title,
+            expand=True,
         )
-    )
+
+    console.print(display)
