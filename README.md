@@ -6,6 +6,7 @@
 [![Gitmoji][gitmoji-badge]][gitmoji]
 [![Code style: black][black-badge]][black]
 [![Coverage Status][coveralls-badge]][coveralls]
+[![Documentation Status][docs-badge]][docs]
 
 ## I/O for common pulsar data formats
 
@@ -82,9 +83,12 @@ If you find any bugs :bug: in priwo, feel free to drop into the [**issues**][iss
 
 [gitmoji]: https://gitmoji.dev
 [black]: https://github.com/psf/black
+[docs]: https://priwo.readthedocs.io/en/latest/?badge=latest
 [coveralls]: https://coveralls.io/github/astrogewgaw/priwo?branch=main
-[black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
 [tests]: https://github.com/astrogewgaw/priwo/actions/workflows/tests.yaml/badge.svg
+
+[black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[docs-badge]: https://readthedocs.org/projects/priwo/badge/?version=latest
 [coveralls-badge]: https://coveralls.io/repos/github/astrogewgaw/priwo/badge.svg?branch=main
 [gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square
 
