@@ -1,4 +1,6 @@
-from typing import Dict, Callable
+# type: ignore
+
+from ._version import version
 
 from .core import (
     chunks,
@@ -17,7 +19,7 @@ from .polycos import read_polycos, write_polycos
 from .bestprof import read_bestprof, write_bestprof
 
 
-PRIWO_EXTS: Dict[str, Callable] = {
+PRIWO_EXTS = {
     ".inf": read_inf,
     ".dat": read_dat,
     ".tim": read_tim,
@@ -32,6 +34,7 @@ PRIWO_EXTS: Dict[str, Callable] = {
 
 __all__ = [
     "chunks",
+    "version",
     "max_size",
     "available_formats",
 ]
