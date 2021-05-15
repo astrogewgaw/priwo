@@ -23,8 +23,6 @@ PRIWO_AVAILABLE_FORMATS = [
     {"name": "tim", "ext": ".tim", "descr": "SIGPROC time series data."},
     {"name": "fft", "ext": ".fft", "descr": "PRESTO power/frequency spectrum data."},
     {"name": "spc", "ext": ".spc", "descr": "SIGPROC power/frequency spectrum data."},
-    {"name": "filterbank", "ext": ".fil", "descr": "SIGPROC frequency-time data."},
-    {"name": "psrfits", "ext": None, "descr": "PSRFITS format."},
     {"name": "pfd", "ext": ".pfd", "descr": "PRESTO folded data."},
     {"name": "polycos", "ext": ".polycos", "descr": "Polynomial coefficients."},
     {"name": "bestprof", "ext": ".bestprof", "descr": "PRESTO best profile data."},
