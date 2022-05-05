@@ -1,56 +1,11 @@
 import nox
 
-
-py_versions = [
-    "3.6",
-    "3.7",
-    "3.8",
-    "3.9",
-]
+vers = ["3.6", "3.7", "3.8", "3.9", "3.10"]
+deps = ["pytest", "deepdiff", "pytest-cov", "pytest-clarity"]
 
 
-@nox.session
-def lint(session):
-
-    """
-    Lint all files in priwo.
-    """
-
-    session.install("black")
-    session.run("black", ".")
-
-
-@nox.session(
-    python=py_versions,
-    reuse_venv=True,
-)
+@nox.session(python=vers, reuse_venv=True)
 def tests(session):
-
-    """
-    Run tests for priwo.
-    """
-
-    # Install dependencies.
-    session.install(
-        "pytest",
-        "pytest-cov",
-        "deepdiff",
-    )
-
-    # Install the package in development mode.
-    session.run(
-        "pip",
-        "install",
-        "-e",
-        ".",
-    )
-
-    # Run the tests using pytest and generate a coverage report.
-    session.run(
-        "pytest",
-        "-vv",
-        "--cov",
-        "--cov-report",
-        "term-missing",
-        "tests",
-    )
+    session.install(*deps)
+    session.run("pip", "install", "-e", ".")
+    session.run("pytest", "-vv", "--cov", "--cov-report", "term-missing", "tests")
