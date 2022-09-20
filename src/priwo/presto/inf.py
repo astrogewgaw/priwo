@@ -45,7 +45,7 @@ INFMAP = {
 def readinf(f):
 
     """
-    Read in an *.inf file and return it as a dictionary.
+    Read in an *.inf file.
     """
 
     meta = {}
@@ -90,7 +90,7 @@ def readinf(f):
 def writeinf(meta, f):
 
     """
-    Take in a dictionary and write it into an *.inf file.
+    Write out an *.inf file.
     """
 
     notes = meta.pop("notes")
