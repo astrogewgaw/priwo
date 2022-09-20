@@ -1,2 +1,5 @@
 [build-system]
-requires = ["wheel", "setuptools>=45"]
+requires = ["wheel", "setuptools>=45", "setuptools_scm[toml]>=6.0"]
+
+[tool.setuptools_scm]
+write_to = "src/priwo/_version.py"

@@ -8,6 +8,7 @@ __pycache__
 .mypy_cache
 .pytest_cache
 .ipynb_checkpoints
+src/priwo/_version.py
 
 *.py[cod]
 *.o
