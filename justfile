@@ -59,7 +59,7 @@ default:
 
 # Run tests.
 @test:
-	nox -s tests
+	ward
 
 # Install.
 @install: && clean

@@ -67,7 +67,8 @@ def readinf(f):
     onoffs = []
     with open(f, "r") as lines:
         for line in lines:
-            if matched := re.search(regex, line):
+            matched = re.search(regex, line)
+            if matched:
                 groups = matched.groupdict()
                 key = groups["key"]
                 val = groups["val"]

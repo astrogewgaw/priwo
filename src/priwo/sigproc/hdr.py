@@ -53,6 +53,11 @@ HDRKEYS = {
 
 
 def readhdr(f):
+
+    """
+    Read in a SIGPROC header.
+    """
+
     meta = {}
     with open(f, "rb") as fp:
         START.parse_stream(fp)
@@ -60,12 +65,16 @@ def readhdr(f):
             key = pabo.PascalString(pabo.Int(4), "utf8").parse_stream(fp)
             if key == "HEADER_END":
                 break
-            val = HDRKEYS[key].parse_stream(fp)
-            meta[key] = val
+            meta[key] = HDRKEYS[key].parse_stream(fp)
     return meta
 
 
 def writehdr(meta, f):
+
+    """
+    Write out a SIGPROC header.
+    """
+
     with open(f, "wb+") as fp:
         START.build_stream("HEADER_START", fp)
         for key, val in meta.items():
