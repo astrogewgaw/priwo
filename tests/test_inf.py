@@ -1,7 +1,6 @@
 from ward import test
 from ward import fixture
 from pathlib import Path
-from dirty_equals import IsDict
 from priwo.presto.inf import readinf
 
 
@@ -12,7 +11,7 @@ def data():
 
 @test("Read in a *.inf file, for radio data.")
 def _(f=data().joinpath("test_fake_presto_radio.inf")):
-    assert readinf(f) == IsDict(
+    assert readinf(f) == dict(
         analyst="Space Sheriff Gavan",
         barycentered=True,
         beamdiam=981.0,
@@ -40,7 +39,7 @@ def _(f=data().joinpath("test_fake_presto_radio.inf")):
 
 @test("Read in a *.inf file, for radio data, but with breaks.")
 def _(f=data().joinpath("test_fake_presto_radio_breaks.inf")):
-    assert readinf(f) == IsDict(
+    assert readinf(f) == dict(
         analyst="Space Sheriff Gavan",
         barycentered=True,
         beamdiam=981.0,
@@ -68,7 +67,7 @@ def _(f=data().joinpath("test_fake_presto_radio_breaks.inf")):
 
 @test("Read in a *.inf file, for xray data.")
 def _(f=data().joinpath("test_fake_presto_xray.inf")):
-    assert readinf(f) == IsDict(
+    assert readinf(f) == dict(
         analyst="Space Sheriff Gavan",
         barycentered=True,
         bpE=5.0,
