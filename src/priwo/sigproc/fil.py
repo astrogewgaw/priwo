@@ -4,7 +4,9 @@ R/W SIGPROC filterbank (*.fil) files.
 
 import numbits
 import numpy as np
+
 from priwo.sigproc.hdr import readhdr
+from priwo.sigproc.hdr import writehdr
 
 
 def readfil(f):

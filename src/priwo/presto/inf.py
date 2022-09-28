@@ -45,7 +45,7 @@ INFMAP = {
 def readinf(f):
 
     """
-    Read in an *.inf file.
+    Read in a PRESTO infodata (*.inf) file.
     """
 
     meta = {}
@@ -91,7 +91,7 @@ def readinf(f):
 def writeinf(meta, f):
 
     """
-    Write out an *.inf file.
+    Write out a PRESTO infodata (*.inf) file.
     """
 
     notes = meta.pop("notes")

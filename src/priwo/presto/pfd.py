@@ -18,7 +18,7 @@ class PFD(pabo.Struct):
     nsub      = pabo.Int(4)
     npart     = pabo.Int(4)
     nbin      = pabo.Int(4)
-    numchan   = pabo.Int(4)
+    nchan     = pabo.Int(4)
     pstep     = pabo.Int(4)
     pdstep    = pabo.Int(4)
     dmstep    = pabo.Int(4)

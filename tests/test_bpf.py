@@ -1,7 +1,9 @@
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.presto.bpf import readbpf
+from priwo.presto import readbpf
+from priwo.presto import writebpf
+from tempfile import NamedTemporaryFile
 
 
 @fixture
@@ -9,8 +11,7 @@ def data():
     return Path(__file__).parent.joinpath("data")
 
 
-@test("Read in a *.bestprof file.")
-def _(f=data().joinpath("test_PSR_J1646-2142.bestprof")):
+def check(f):
     assert readbpf(f)["meta"] == dict(
         asini_by_c=None,
         bary_epoch=None,
@@ -42,3 +43,15 @@ def _(f=data().joinpath("test_PSR_J1646-2142.bestprof")):
         tsamp=1.024e-05,
         w=None,
     )
+
+
+@test(f"{str(readbpf.__doc__).strip()}")
+def _(f=data().joinpath("test.bestprof")):
+    check(f)
+
+
+@test(f"{str(writebpf.__doc__).strip()}")
+def _(f=data().joinpath("test.bestprof")):
+    with NamedTemporaryFile(suffix=".bestprof") as fp:
+        writebpf(readbpf(f), fp.name)
+        check(fp.name)
