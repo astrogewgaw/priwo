@@ -1,5 +1,5 @@
 """
-R/W *.inf files.
+R/W PRESTO infodata (*.inf) files.
 """
 
 import re
@@ -82,7 +82,7 @@ def readinf(f):
     notes = notes[1:]
     notes = [note.strip() for note in notes]
     notes = [note for note in notes if note]
-    notes = " ".join(notes)
+    notes = "\n".join(notes)
     meta["onoffs"] = onoffs
     meta["notes"] = notes
     return meta
@@ -97,7 +97,19 @@ def writeinf(meta, f):
     notes = meta.pop("notes")
     onoffs = meta.pop("onoffs")
     frame = " {key:<37s}  =  {val:s}"
-    lines = [frame.format(key={name: key for key, (name, _) in INFMAP.items()})]
+    lines = [
+        frame.format(
+            key={
+                name: description
+                for (
+                    description,
+                    (name, _),
+                ) in INFMAP.items()
+            }[key],
+            val=string(val),
+        )
+        for key, val in meta.items()
+    ]
 
     if meta["breaks"]:
         lines[12:12] = [
@@ -111,5 +123,5 @@ def writeinf(meta, f):
     with open(f, "w+") as fp:
         fp.write("\n".join(lines))
         fp.write("\n Any additional notes:\n")
-        for note in notes:
+        for note in notes.split("\n"):
             fp.write("    {note}\n".format(note=note))

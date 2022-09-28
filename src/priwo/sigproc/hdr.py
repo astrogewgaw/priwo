@@ -1,3 +1,7 @@
+"""
+R/W SIGPROC headers.
+"""
+
 import pabo
 
 # fmt: off
@@ -66,6 +70,7 @@ def readhdr(f):
             if key == "HEADER_END":
                 break
             meta[key] = HDRKEYS[key].parse_stream(fp)
+        meta["size"] = fp.tell()
     return meta
 
 

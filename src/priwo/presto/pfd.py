@@ -1,8 +1,17 @@
+"""
+R/W PRESTO folded data (*.pfd) files.
+"""
+
 import pabo
 import numpy as np
 
 # fmt: off
 class PFD(pabo.Struct):
+
+    """
+    Specification for PRESTO folded data (*.pfd) files.
+    """
+
     ndms      = pabo.Int(4)
     nperiods  = pabo.Int(4)
     npdots    = pabo.Int(4)
@@ -55,10 +64,10 @@ class PFD(pabo.Struct):
 # fmt: on
 
 
-def read_pfd(f):
+def readpfd(f):
 
     """
-    Read in a *.pfd file.
+    Read in a PRESTO folded data (*.pfd) file.
     """
 
     pfd = {}
@@ -82,3 +91,12 @@ def read_pfd(f):
     pfd["data"] = data
 
     return pfd
+
+
+def writepfd(pfd, f):
+
+    """
+    Write out a PRESTO folded data (*.pfd) file.
+    """
+
+    pass
