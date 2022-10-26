@@ -53,12 +53,13 @@ default:
     rm -rf build
     rm -rf .eggs
     rm -rf .coverage
+    rm -rf .mypy_cache
     rm -rf .pytest_cache
     fd -I -e pyc -x rm -rf
     fd -I __pycache__ -x rm -rf
 
 # Run tests.
-@test:
+@test: && clean
 	ward
 
 # Install.
@@ -71,6 +72,7 @@ default:
     echo "Uninstalling {{pkg}}..."
     pip uninstall {{pkg}}
     rm -rf src/{{pkg}}.egg-info
+    rm -rf src/{{pkg}}/_version.py
 
 # Build source distribution.
 dist:

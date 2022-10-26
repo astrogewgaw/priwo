@@ -52,4 +52,12 @@ def writefil(fil, f):
     Write out a SIGPROC filterbank (*.fil) file.
     """
 
-    pass
+    meta = fil["meta"]
+    data = fil["data"]
+    size = meta["size"]
+    nbits = meta.get("nbits", None)
+
+    writehdr(meta, f)
+    with open(f, "a") as fp:
+        fp.seek(size)
+        (numbits.pack(data, nbits=nbits) if nbits in [1, 2, 4] else data.T).tofile(fp)

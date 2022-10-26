@@ -1,8 +1,7 @@
-from rich.console import Console
-from priwo._version import version
-from rich.traceback import install
+"""
+I/O for common pulsar data formats.
+"""
 
-console = Console()
-install(console=console)
+from priwo._version import version
 
 __all__ = ["version"]

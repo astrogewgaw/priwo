@@ -1,0 +1,14 @@
+The API is *low-level*: each function in `priwo` returns and takes in a Python
+dictionaries. This is by design, so that you, the user, can design your own
+high-level API. In doing so, `priwo` does not make any assumptions about how the
+pulsar data is going to be used. This is unlike other libraries, such as
+[**`your`**][your]. `your` (to which this library is frequently compared to)
+provides a high-level API from the beginning, and provides many modules to help
+one process and analyse pulsar data. This makes the number of dependencies it
+needs high (as of 05/10/22, that number is 9). On the other hand, `priwo` has
+only one dependency: [**`pabo`**][pabo], which in turn has only 3 dependencies.
+This makes `priwo` an ideal choice to drop into your projects, without worrying
+about [**dependency hell**][dependency_hell]. While it is true that there will
+be frequent breaking changes to `priwo`'s API before the `v0.0.1` release, one
+can always fix its version to ensure that there are no problems, since each
+release is well-tested.

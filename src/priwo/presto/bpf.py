@@ -8,11 +8,18 @@ import numpy as np
 
 only = lambda _: _[0] if len(_) == 1 else _
 strings = lambda _: None if str(_) == "N/A" else str(_)
-
-
-def numeral(_):
-    matched = re.findall(REGEXPS["numeral"], _)
-    return only(list(map(float, matched))) if matched else None
+numeral = (
+    lambda _: only(
+        list(
+            map(
+                float,
+                re.findall(REGEXPS["numeral"], _),
+            )
+        )
+    )
+    if re.search(REGEXPS["numeral"], _)
+    else None
+)
 
 
 # fmt: off

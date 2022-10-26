@@ -1,3 +1,5 @@
+import numpy as np
+
 from ward import test
 from ward import fixture
 from pathlib import Path
@@ -71,3 +73,10 @@ def check(f):
 @test(f"{str(readpfd.__doc__).strip()}")
 def _(f=data().joinpath("test.pfd")):
     check(f)
+
+
+@test(f"{str(writepfd.__doc__).strip()}")
+def _(f=data().joinpath("test.pfd")):
+    with NamedTemporaryFile(suffix=".pfd") as fp:
+        writepfd(readpfd(f), fp.name)
+        check(fp.name)

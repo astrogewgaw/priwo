@@ -1,3 +1,7 @@
+"""
+R/W pulsar data formats used by the PRESTO package.
+"""
+
 from priwo.presto.inf import readinf
 from priwo.presto.dat import readdat
 from priwo.presto.fft import readfft

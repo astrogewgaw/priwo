@@ -8,6 +8,7 @@ import shlex
 
 pad = lambda _, N: (_ + [None] * N)[:N]
 boolean = lambda _: {"1": True, "0": False}.get(_, False)
+numeral = re.compile(r"^[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?$", re.MULTILINE)
 
 
 def readpar(f):
@@ -72,6 +73,16 @@ def readpar(f):
                     "_".join([key, ref, "FIT"]): boolean(fit),
                 }
             )
+
+    for key, val in data.items():
+        data[key] = (
+            float(val)
+            if re.search(
+                numeral,
+                val if isinstance(val, str) else "",
+            )
+            else val
+        )
     return data
 
 

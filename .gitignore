@@ -1,8 +1,6 @@
 dist
 build
 .egg
-.nox
-.vscode
 .coverage
 __pycache__
 .mypy_cache
@@ -10,8 +8,8 @@ __pycache__
 .ipynb_checkpoints
 src/priwo/_version.py
 
-*.py[cod]
 *.o
 *.so
 *.egg
+*.py[cod]
 *.egg-info

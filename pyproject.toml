@@ -1,5 +1,9 @@
 [build-system]
-requires = ["wheel", "setuptools>=45", "setuptools_scm[toml]>=6.0"]
+requires = [
+    "wheel",
+    "setuptools>=45",
+    "setuptools_scm[toml]>=6.0",
+]
 
 [tool.setuptools_scm]
 write_to = "src/priwo/_version.py"
@@ -15,7 +19,7 @@ ignore-magic = false
 ignore-module = false
 ignore-private = false
 ignore-setters = false
-generate-badge = "img"
+generate-badge = "assets"
 ignore-init-method = true
 omit-covered-files = false
 ignore-init-module = false
@@ -24,4 +28,11 @@ ignore-nested-classes = true
 badge-style = "for-the-badge"
 ignore-nested-functions = false
 ignore-property-decorators = false
-exclude = ["setup.py", "img", "docs", "tests", "build"]
+exclude = [
+    "docs",
+    "tests",
+    "build",
+    "assets",
+    "setup.py",
+    "src/priwo/_version.py",
+]

@@ -1,3 +1,7 @@
+"""
+R/W TEMPO polynomial ephemerides (*.polycos) files.
+"""
+
 import re
 import numpy as np
 
@@ -28,7 +32,7 @@ TEMPLATES = {
 def readpolycos(f):
 
     """
-    Read in a *.polycos file.
+    Read in a TEMPO polynomial ephemerides (*.polycos) file.
     """
 
     polycos = []
@@ -99,7 +103,7 @@ def readpolycos(f):
 def writepolycos(polycos, f):
 
     """
-    Write out a *.polycos file.
+    Write out a TEMPO polynomial ephemerides (*.polycos) file.
     """
 
     with open(f, "w+") as fp:

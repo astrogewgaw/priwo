@@ -80,8 +80,10 @@ def writehdr(meta, f):
     Write out a SIGPROC header.
     """
 
+    meta.pop("size")
     with open(f, "wb+") as fp:
         START.build_stream("HEADER_START", fp)
         for key, val in meta.items():
+            pabo.PascalString(pabo.Int(4), "utf8").build_stream(key, fp)
             HDRKEYS[key].build_stream(val, fp)
         END.build_stream("HEADER_END", fp)

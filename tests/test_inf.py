@@ -90,36 +90,36 @@ def check_xray(f):
 
 
 @test(f"{str(readinf.__doc__).strip()}, for radio data.")
-def _(f=data().joinpath("test_fake_presto_radio.inf")):
+def _(f=data().joinpath("test_radio.inf")):
     check(f)
 
 
 @test(f"{str(readinf.__doc__).strip()}, for radio data, but with breaks.")
-def _(f=data().joinpath("test_fake_presto_radio_breaks.inf")):
+def _(f=data().joinpath("test_radio_breaks.inf")):
     check_breaks(f)
 
 
 @test(f"{str(readinf.__doc__).strip()} for xray data.")
-def _(f=data().joinpath("test_fake_presto_xray.inf")):
+def _(f=data().joinpath("test_xray.inf")):
     check_xray(f)
 
 
 @test(f"{str(writeinf.__doc__).strip()}, for radio data.")
-def _(f=data().joinpath("test_fake_presto_radio.inf")):
+def _(f=data().joinpath("test_radio.inf")):
     with NamedTemporaryFile(suffix=".inf") as fp:
         writeinf(readinf(f), fp.name)
         check(fp.name)
 
 
 @test(f"{str(writeinf.__doc__).strip()}, for radio data, but with breaks.")
-def _(f=data().joinpath("test_fake_presto_radio_breaks.inf")):
+def _(f=data().joinpath("test_radio_breaks.inf")):
     with NamedTemporaryFile(suffix=".inf") as fp:
         writeinf(readinf(f), fp.name)
         check_breaks(fp.name)
 
 
 @test(f"{str(writeinf.__doc__).strip()}, for xray data.")
-def _(f=data().joinpath("test_fake_presto_xray.inf")):
+def _(f=data().joinpath("test_xray.inf")):
     with NamedTemporaryFile(suffix=".inf") as fp:
         writeinf(readinf(f), fp.name)
         check_xray(fp.name)
