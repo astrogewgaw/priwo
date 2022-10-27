@@ -5,8 +5,8 @@ R/W SIGPROC headers.
 import pabo
 
 # fmt: off
-START = pabo.Const(pabo.PascalString(pabo.Int(4), "utf8"), "HEADER_START")
-END   = pabo.Const(pabo.PascalString(pabo.Int(4), "utf8"), "HEADER_END")
+START = pabo.Const("HEADER_START", pabo.PascalString(pabo.Int(4), "utf8"))
+END   = pabo.Const("HEADER_END", pabo.PascalString(pabo.Int(4), "utf8"))
 # fmt: on
 
 # fmt: off
@@ -66,7 +66,10 @@ def readhdr(f):
     with open(f, "rb") as fp:
         START.parse_stream(fp)
         while True:
-            key = pabo.PascalString(pabo.Int(4), "utf8").parse_stream(fp)
+            key = pabo.PascalString(
+                pabo.Int(4),
+                "utf8",
+            ).parse_stream(fp)
             if key == "HEADER_END":
                 break
             meta[key] = HDRKEYS[key].parse_stream(fp)
@@ -82,8 +85,11 @@ def writehdr(meta, f):
 
     meta.pop("size")
     with open(f, "wb+") as fp:
-        START.build_stream("HEADER_START", fp)
+        START.build_stream(fp)
         for key, val in meta.items():
-            pabo.PascalString(pabo.Int(4), "utf8").build_stream(key, fp)
+            pabo.PascalString(
+                pabo.Int(4),
+                "utf8",
+            ).build_stream(key, fp)
             HDRKEYS[key].build_stream(val, fp)
-        END.build_stream("HEADER_END", fp)
+        END.build_stream(fp)

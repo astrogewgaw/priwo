@@ -2,8 +2,7 @@
 R/W SIGPROC filterbank (*.fil) files.
 """
 
-import numbits
-import numpy as np
+import pabo as pb
 
 from priwo.sigproc.hdr import readhdr
 from priwo.sigproc.hdr import writehdr
@@ -16,25 +15,23 @@ def readfil(f):
     """
 
     meta = readhdr(f)
-    nbits = meta.get("nbits", None)
-    data = np.fromfile(
-        f,
-        offset=meta["size"],
-        dtype={
-            # fmt: off
-            1:    np.uint8,
-            2:    np.uint8,
-            4:    np.uint8,
-            8:    np.uint8,
-            16:   np.uint16,
-            32:   np.float32,
-            None: np.float32,
-            # fmt: on
-        }[nbits],
-    )
-
-    if nbits in [1, 2, 4]:
-        data = numbits.unpack(data, nbits=nbits)
+    size = meta["size"]
+    nbits = meta.get("nbits", 8)
+    with open(f, "rb") as fp:
+        fp.seek(size)
+        data = pb.Array(
+            {
+                1: pb.Int(1),
+                2: pb.Int(1),
+                4: pb.Int(1),
+                8: pb.Int(1),
+                16: pb.Int(2),
+                32: pb.Float(4),
+                64: pb.Float(8),
+                None: pb.Float(4),
+            }[nbits],
+            packing=(nbits if nbits in [1, 2, 4] else None),
+        ).parse_stream(fp)
 
     try:
         nchan = meta.get("nchans", -1)
@@ -55,9 +52,21 @@ def writefil(fil, f):
     meta = fil["meta"]
     data = fil["data"]
     size = meta["size"]
-    nbits = meta.get("nbits", None)
+    nbits = meta.get("nbits", 8)
 
     writehdr(meta, f)
-    with open(f, "a") as fp:
+    with open(f, "ab") as fp:
         fp.seek(size)
-        (numbits.pack(data, nbits=nbits) if nbits in [1, 2, 4] else data.T).tofile(fp)
+        pb.Array(
+            {
+                1: pb.Int(1),
+                2: pb.Int(1),
+                4: pb.Int(1),
+                8: pb.Int(1),
+                16: pb.Int(2),
+                32: pb.Float(4),
+                64: pb.Float(8),
+                None: pb.Float(4),
+            }[nbits],
+            packing=(nbits if nbits in [1, 2, 4] else None),
+        ).build_stream(data.T, fp)

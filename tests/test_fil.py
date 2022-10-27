@@ -18,7 +18,7 @@ def check(f, array):
 
 
 for n, array in {
-    1: np.asarray([1, 0, 0, 1, 1, 0, 0, 1, 1, 0], dtype=np.uint8),
+    1: np.asarray([1, 1, 0, 0, 0, 0, 0, 0, 1, 1], dtype=np.uint8),
     2: np.asarray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.uint8),
     4: np.asarray([7, 4, 3, 11, 6, 10, 10, 9, 6, 7], dtype=np.uint8),
     8: np.asarray([121, 94, 94, 124, 151, 118, 132, 74, 112, 65], dtype=np.uint8),

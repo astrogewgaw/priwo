@@ -48,9 +48,9 @@ which this library has been frequently compared to) provides a high-level API
 for reading in pulsar data, while also providing modules to help process and
 analyze it. This is makes the number of dependencies it uses is a bit high (as
 of 05/10/22, that is a total of 9 dependencies). On the other hand, `priwo` has
-just one dependency, [**`pabo`**][pabo], which in turn has just 2 dependencies
-(`attrs` and `numpy`). This makes `priwo` an ideal choice to drop into your
-projects, without worrying about [**dependency hell**][dependency_hell].
+just 2 dependencies, [**`numpy`**][numpy] and [**`pabo`**][pabo]¹. This makes it
+an ideal choice to drop into your projects, without worrying about [**dependency
+hell**][dependency_hell].
 
 `priwo` is well-tested (via [**`ward`**][ward]) and actively maintained. No
 major changes to the API are expected before `v0.1.0`. Support for many more
@@ -68,9 +68,18 @@ Installing `priwo` is as easy as:
 pip install priwo
 ```
 
+<br/>
+<sup>
+
+¹ [**`pabo`**][pabo] is a package I made to make parsing binary data easier, and
+it also has just two dependencies: [**`attrs`**][attrs] and
+[**`numpy`**][numpy].
+
+</sup>
 </div>
 
-[numpy]: https://numpy.org/
+[numpy]: https://numpy.org
+[attrs]: https://www.attrs.org
 [gitmoji]: https://gitmoji.dev
 [black]: https://github.com/psf/black
 [just]: https://github.com/casey/just
