@@ -8,28 +8,19 @@ import numpy as np
 
 only = lambda _: _[0] if len(_) == 1 else _
 strings = lambda _: None if str(_) == "N/A" else str(_)
+numex = re.compile(r"[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?")
 numeral = (
     lambda _: only(
         list(
             map(
                 float,
-                re.findall(REGEXPS["numeral"], _),
+                re.findall(numex, _),
             )
         )
     )
-    if re.search(REGEXPS["numeral"], _)
+    if re.search(numex, _)
     else None
 )
-
-
-# fmt: off
-REGEXPS = {
-    "separator": re.compile(r"\s+[=<>]\s+"),
-    "header":    re.compile(r"^#.*", re.MULTILINE),
-    "profile":   re.compile(r"^\s+\d+\s+(.+)$", re.MULTILINE),
-    "numeral":   re.compile(r"[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"),
-}
-# fmt: on
 
 
 def readbpf(f):
@@ -44,8 +35,8 @@ def readbpf(f):
     with open(f, "r") as fp:
         lines = fp.read()
 
-    profile = np.asarray(re.findall(REGEXPS["profile"], lines), dtype=np.float32)
-    header = re.findall(REGEXPS["header"], lines)
+    profile = np.asarray(re.findall(r"^\s+\d+\s+(.+)$", lines, re.M), dtype=np.float32)
+    header = re.findall(r"^#.*", lines, re.M)
     header = header[:-1]
 
     for key, val in {
@@ -81,7 +72,7 @@ def readbpf(f):
                 "t_peri":       numeral,
                 # fmt: on
             }.items(),
-            [re.split(REGEXPS["separator"], line)[-1] for line in header],
+            [re.split(r"\s+[=<>]\s+", line)[-1] for line in header],
         )
     }.items():
         if isinstance(val, list):

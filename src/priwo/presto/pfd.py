@@ -2,63 +2,69 @@
 R/W PRESTO folded data (*.pfd) files.
 """
 
-import pabo
+import pabo as pb
 import numpy as np
 
 
-PFD = pabo.Spec(
-    fields={
-        "ndms": pabo.Int(4),
-        "nperiods": pabo.Int(4),
-        "npdots": pabo.Int(4),
-        "nsub": pabo.Int(4),
-        "npart": pabo.Int(4),
-        "nbin": pabo.Int(4),
-        "nchan": pabo.Int(4),
-        "pstep": pabo.Int(4),
-        "pdstep": pabo.Int(4),
-        "dmstep": pabo.Int(4),
-        "ndmfact": pabo.Int(4),
-        "npfact": pabo.Int(4),
-        "filename": pabo.PascalString(pabo.Int(4), "utf8"),
-        "candname": pabo.PascalString(pabo.Int(4), "utf8"),
-        "telescope": pabo.PascalString(pabo.Int(4), "utf8"),
-        "pgdev": pabo.PascalString(pabo.Int(4), "utf8"),
-        "rastr": pabo.PaddedString(16, "utf8"),
-        "decstr": pabo.PaddedString(16, "utf8"),
-        "dt": pabo.Float(8),
-        "startT": pabo.Float(8),
-        "endT": pabo.Float(8),
-        "tepoch": pabo.Float(8),
-        "bepoch": pabo.Float(8),
-        "avgoverc": pabo.Float(8),
-        "lofreq": pabo.Float(8),
-        "chanwidth": pabo.Float(8),
-        "bestdm": pabo.Float(8),
-        "topopow": pabo.Float(4),
-        "_t": pabo.Float(4),
-        "topop1": pabo.Float(8),
-        "topop2": pabo.Float(8),
-        "topop3": pabo.Float(8),
-        "barypow": pabo.Float(4),
-        "_b": pabo.Float(4),
-        "baryp1": pabo.Float(8),
-        "baryp2": pabo.Float(8),
-        "baryp3": pabo.Float(8),
-        "foldpow": pabo.Float(4),
-        "_f": pabo.Float(4),
-        "foldp1": pabo.Float(8),
-        "foldp2": pabo.Float(8),
-        "foldp3": pabo.Float(8),
-        "orbp": pabo.Float(8),
-        "orbe": pabo.Float(8),
-        "orbx": pabo.Float(8),
-        "orbw": pabo.Float(8),
-        "orbt": pabo.Float(8),
-        "orbpd": pabo.Float(8),
-        "orbwd": pabo.Float(8),
-    },
+# fmt: off
+Position = pb.Spec(
+    fields=dict(
+        power = pb.Float(8) / "Power normalized with local power.",
+        p     = pb.Float(8) / "r if rzw search, r_startfft if bin search.",
+        pd    = pb.Float(8) / "z if rzw search, r_freqmod if bin search.",
+        pdd   = pb.Float(8) / "w if rzw search, numfftbins if bin search.",
+    )
 )
+# fmt: on
+
+
+# fmt: off
+PFD = pb.Spec(
+    fields=dict(
+        ndms      = pb.Int(4) / "Number of trial DMs.",
+        nperiods  = pb.Int(4) / "Number of trial periods.",
+        npdots    = pb.Int(4) / "Number of trial period derivatives.",
+        nsub      = pb.Int(4) / "Number of frequency subbands folded.",
+        npart     = pb.Int(4) / "Number of folds in time over integration.",
+        nbin      = pb.Int(4) / "Number of bins per profile.",
+        nchan     = pb.Int(4) / "Number of channels for radio data.",
+        pstep     = pb.Int(4) / "Minimum period stepsize in profile phase bins.",
+        pdstep    = pb.Int(4) / "Minimum p-dot stepsize in profile phase bins.",
+        dmstep    = pb.Int(4) / "Minimum DM stepsize in profile phase bins.",
+        ndmfact   = pb.Int(4) / "2 * ndmfact * proflen + 1 DMs to search.",
+        npfact    = pb.Int(4) / "2 * npfact * proflen + 1 periods and p-dots to search.",
+        filename  = pb.PascalString(pb.Int(4), "utf8") / "Filename of the folded data.",
+        candname  = pb.PascalString(pb.Int(4), "utf8") / "String describing the candidate.",
+        telescope = pb.PascalString(pb.Int(4), "utf8") / "Telescope where observation took place.",
+        pgdev     = pb.PascalString(pb.Int(4), "utf8") / "PGPLOT device to use.",
+        ra        = pb.PaddedString(16, "utf8") / "J2000 RA  string in format hh:mm:ss.ssss.",
+        dec       = pb.PaddedString(16, "utf8") / "J2000 DEC string in format dd:mm:ss.ssss.",
+        dt        = pb.Float(8) / "Sampling interval of the data.",
+        T0        = pb.Float(8) / "Fraction of observation file to start folding.",
+        Tn        = pb.Float(8) / "Fraction of observation file to stop folding.",
+        tepoch    = pb.Float(8) / "Topocentric eopch of data in MJD.",
+        bepoch    = pb.Float(8) / "Barycentric eopch of data in MJD.",
+        vavg      = pb.Float(8) / "Average topocentric velocity.",
+        f0        = pb.Float(8) / "Center of low frequency radio channel.",
+        df        = pb.Float(8) / "Width of each radio channel in MHz.",
+        bestdm    = pb.Float(8) / "Best DM.",
+        topo      = Position / "Best topocentric p, pd, and pdd.",
+        bary      = Position / "Best barycentric p, pd, and pdd.",
+        fold      = Position / "f, fd, and fdd used to fold the initial data.",
+        orb=pb.Spec(
+            fields=dict(
+                p  = pb.Float(8) / "Orbital period (s).",
+                e  = pb.Float(8) / "Orbital eccentricity.",
+                x  = pb.Float(8) / "Projected semi-major axis (lt-sec).",
+                w  = pb.Float(8) / "Longitude of periapsis (deg).",
+                t  = pb.Float(8) / "Time since last periastron passage (s).",
+                pd = pb.Float(8) / "Orbital period derivative (s/yr).",
+                wd = pb.Float(8) / "Advance of longitude of periapsis (deg/yr).",
+            )
+        ) / "Barycentric orbital parameters used in folds.",
+    )
+)
+# fmt: on
 
 
 def readpfd(f):
@@ -69,12 +75,12 @@ def readpfd(f):
 
     pfd = {}
     with open(f, "rb") as fp:
-        meta = PFD.parse_stream(fp)
+        meta = PFD.parse(fp)
         for key, shape in {
             "dms": meta["ndms"],
             "periods": meta["nperiods"],
             "pdots": meta["npdots"],
-            "profs": (meta["nsub"], meta["npart"], meta["nbin"]),
+            "profs": (meta["npart"], meta["nsub"], meta["nbin"]),
             "stats": (7, meta["nsub"], meta["npart"]),
         }.items():
             meta[key] = np.fromfile(
@@ -97,7 +103,7 @@ def writepfd(pfd, f):
     """
 
     with open(f, "wb+") as fp:
-        PFD.build_stream(pfd["meta"], fp)
+        PFD.build(pfd["meta"], fp)
         for key in ["dms", "periods", "pdots"]:
             pfd["meta"][key].tofile(fp)
         pfd["data"].tofile(fp)

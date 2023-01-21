@@ -1,6 +1,8 @@
 dist
 build
 .egg
+.nox
+.vscode
 .coverage
 __pycache__
 .mypy_cache

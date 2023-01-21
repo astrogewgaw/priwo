@@ -31,7 +31,7 @@ def readfil(f):
                 None: pb.Float(4),
             }[nbits],
             packing=(nbits if nbits in [1, 2, 4] else None),
-        ).parse_stream(fp)
+        ).parse(fp)
 
     try:
         nchan = meta.get("nchans", -1)
@@ -69,4 +69,4 @@ def writefil(fil, f):
                 None: pb.Float(4),
             }[nbits],
             packing=(nbits if nbits in [1, 2, 4] else None),
-        ).build_stream(data.T, fp)
+        ).build(data.T, fp)

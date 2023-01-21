@@ -12,21 +12,21 @@ def data():
 
 
 def check(f):
-    assert readpolycos(f)[0] == dict(
-        psrname="1646-2142",
+    assert readpolycos(f)[0]["meta"] == dict(
+        name="1646-2142",
         date="14-JUL-19",
         utc="50000.00",
         tmid=58678.2083333333,
         dm=29.741,
         doppler=0.605,
-        log10rms=-6.064,
-        ref_phase=30728623742.9709,
-        ref_rot=170.849389109675,
-        obs_code=27,
-        data_span=60.0,
-        num_coeff=12,
-        obs_freq=399.805,
-        bin_phz=None,
+        rms=-6.064,
+        refphz=30728623742.9709,
+        reff0=170.849389109675,
+        obsno=27,
+        span=60.0,
+        ncoeff=12,
+        freq=399.805,
+        binphz=105.0,
     )
 
 

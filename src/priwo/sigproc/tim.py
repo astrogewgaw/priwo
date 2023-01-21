@@ -30,7 +30,7 @@ def readtim(f):
                 None: pb.Float(4),
             }[nbits],
             packing=(nbits if nbits in [1, 2, 4] else None),
-        ).parse_stream(fp)
+        ).parse(fp)
     return {"meta": meta, "data": data}
 
 
@@ -60,4 +60,4 @@ def writetim(tim, f):
                 None: pb.Float(4),
             }[nbits],
             packing=(nbits if nbits in [1, 2, 4] else None),
-        ).build_stream(data, fp)
+        ).build(data, fp)

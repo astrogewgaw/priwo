@@ -64,15 +64,15 @@ def readhdr(f):
 
     meta = {}
     with open(f, "rb") as fp:
-        START.parse_stream(fp)
+        START.parse(fp)
         while True:
             key = pabo.PascalString(
                 pabo.Int(4),
                 "utf8",
-            ).parse_stream(fp)
+            ).parse(fp)
             if key == "HEADER_END":
                 break
-            meta[key] = HDRKEYS[key].parse_stream(fp)
+            meta[key] = HDRKEYS[key].parse(fp)
         meta["size"] = fp.tell()
     return meta
 
@@ -85,11 +85,11 @@ def writehdr(meta, f):
 
     meta.pop("size")
     with open(f, "wb+") as fp:
-        START.build_stream(fp)
+        START.build(fp)
         for key, val in meta.items():
             pabo.PascalString(
                 pabo.Int(4),
                 "utf8",
-            ).build_stream(key, fp)
-            HDRKEYS[key].build_stream(val, fp)
-        END.build_stream(fp)
+            ).build(key, fp)
+            HDRKEYS[key].build(val, fp)
+        END.build(fp)
