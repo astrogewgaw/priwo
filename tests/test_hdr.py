@@ -1,9 +1,8 @@
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.sigproc import readhdr
-from priwo.sigproc import writehdr
 from tempfile import NamedTemporaryFile
+from priwo.sigproc.hdr import readhdr, writehdr
 
 
 @fixture

@@ -3,9 +3,8 @@ import numpy as np
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.presto import readfft
-from priwo.presto import writefft
 from tempfile import NamedTemporaryFile
+from priwo.presto.fft import readfft, writefft
 
 
 @fixture

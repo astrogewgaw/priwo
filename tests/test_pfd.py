@@ -3,9 +3,8 @@ import numpy as np
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.presto import readpfd
-from priwo.presto import writepfd
 from tempfile import NamedTemporaryFile
+from priwo.presto.pfd import readpfd, writepfd
 
 
 @fixture

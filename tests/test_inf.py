@@ -1,9 +1,8 @@
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.presto import readinf
-from priwo.presto import writeinf
 from tempfile import NamedTemporaryFile
+from priwo.presto.inf import readinf, writeinf
 
 
 @fixture

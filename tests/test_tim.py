@@ -3,9 +3,8 @@ import numpy as np
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.sigproc import readtim
-from priwo.sigproc import writetim
 from tempfile import NamedTemporaryFile
+from priwo.sigproc.tim import readtim, writetim
 
 
 @fixture

@@ -3,9 +3,8 @@ import numpy as np
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.presto import readdat
-from priwo.presto import writedat
 from tempfile import NamedTemporaryFile
+from priwo.presto.dat import readdat, writedat
 
 
 @fixture

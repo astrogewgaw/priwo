@@ -1,9 +1,8 @@
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.presto import readbpf
-from priwo.presto import writebpf
 from tempfile import NamedTemporaryFile
+from priwo.presto.bpf import readbpf, writebpf
 
 
 @fixture

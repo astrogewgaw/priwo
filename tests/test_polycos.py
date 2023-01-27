@@ -1,9 +1,8 @@
 from ward import test
 from ward import fixture
 from pathlib import Path
-from priwo.others import readpolycos
-from priwo.others import writepolycos
 from tempfile import NamedTemporaryFile
+from priwo.timing.coeff import readpolycos, writepolycos
 
 
 @fixture
