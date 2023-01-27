@@ -48,9 +48,9 @@ which this library has been frequently compared to) provides a high-level API
 for reading in pulsar data, while also providing modules to help process and
 analyze it. This is makes the number of dependencies it uses is a bit high (as
 of 05/10/22, that is a total of 9 dependencies). On the other hand, `priwo` has
-just 3 dependencies, [**`numpy`**][numpy], [**`fitsio`**][fitsio], and
-[**`pabo`**][pabo]¹. This makes it an ideal choice to drop into your projects,
-without worrying about [**dependency hell**][dependency_hell].
+just 2 dependencies, [**`numpy`**][numpy] and [**`pabo`**][pabo]¹. This makes it
+an ideal choice to drop into your projects, without worrying about [**dependency
+hell**][dependency_hell].
 
 `priwo` is well-tested (via [**`ward`**][ward]) and actively maintained. No
 major changes to the API are expected before `v0.1.0`. Support for many more
@@ -88,7 +88,6 @@ it has just two dependencies: [**`attrs`**][attrs] and [**`numpy`**][numpy].
 [sigproc]: http://sigproc.sourceforge.net
 [pabo]: https://github.com/astrogewgaw/pabo
 [ward]: https://github.com/darrenburns/ward
-[fitsio]: https://github.com/esheldon/fitsio
 [priwo]: https://github.com/astrogewgaw/priwo
 [docs]: https://priwo.readthedocs.io/en/latest
 [presto]: https://github.com/scottransom/presto
@@ -111,4 +110,4 @@ it has just two dependencies: [**`attrs`**][attrs] and [**`numpy`**][numpy].
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge
 [docs-badge]: https://readthedocs.org/projects/priwo/badge/?version=latest&style=for-the-badge
 [gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=for-the-badge
-[tests-badge]: https://img.shields.io/github/workflow/status/astrogewgaw/priwo/Testing%20priwo!/dev?style=for-the-badge
+[tests-badge]: https://img.shields.io/github/actions/workflow/status/astrogewgaw/priwo/test.yml?branch=dev&style=for-the-badge 
