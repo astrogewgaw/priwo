@@ -20,7 +20,6 @@ jobs:
     
     # Setup the testing environment.
     - uses: actions/checkout@v2
-    - uses: extractions/setup-just@v1 
     - name: Set up Python ${{ matrix.python-version }}.
       uses: actions/setup-python@v4
       with:
@@ -37,4 +36,4 @@ jobs:
         pip install ward
         pip install -e .   
     - name: Run tests for priwo.
-      run: just test
+      run: ward
