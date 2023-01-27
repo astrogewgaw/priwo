@@ -98,7 +98,7 @@ it has just two dependencies: [**`attrs`**][attrs] and [**`numpy`**][numpy].
 [dependency_hell]: https://en.wikipedia.org/wiki/Dependency_hell
 [psrfits]: https://www.atnf.csiro.au/research/pulsar/psrfits_definition/Psrfits.html
 
-[interrogate-badge]: assets/interrogate_badge.svg
+[interrogate-badge]: assets/docs_cov.svg
 [dm-badge]: https://img.shields.io/pypi/dm/priwo?style=for-the-badge
 [version-badge]: https://img.shields.io/pypi/v/priwo?style=for-the-badge
 [wheel-badge]: https://img.shields.io/pypi/wheel/priwo?style=for-the-badge
