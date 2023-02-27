@@ -38,7 +38,8 @@ def array():
 
 
 def check(f):
-    assert np.allclose(readfft(f)["data"], array())
+    _, data = readfft(f)
+    assert np.allclose(data, array())
 
 
 @test(f"{str(readfft.__doc__).strip()}")
@@ -49,5 +50,5 @@ def _(f=data().joinpath("test.fft")):
 @test(f"{str(writefft.__doc__).strip()}")
 def _(f=data().joinpath("test.fft")):
     with NamedTemporaryFile(suffix=".fft") as fp:
-        writefft(readfft(f), fp.name)
+        writefft(*readfft(f), fp.name)
         check(fp.name)

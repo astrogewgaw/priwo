@@ -68,12 +68,10 @@ PFD = pb.Spec(
 
 
 def readpfd(f):
-
     """
     Read in a PRESTO folded data (*.pfd) file.
     """
 
-    pfd = {}
     with open(f, "rb") as fp:
         meta = PFD.parse(fp)
         for key, shape in {
@@ -88,23 +86,18 @@ def readpfd(f):
                 dtype=np.float64,
                 count=np.prod(shape),
             ).reshape(shape)
-    data = meta.pop("profs", None)
-
-    pfd["meta"] = meta
-    pfd["data"] = data
-
-    return pfd
+        data = meta.pop("profs", None)
+        return meta, data
 
 
-def writepfd(pfd, f):
-
+def writepfd(meta, data, f):
     """
     Write out a PRESTO folded data (*.pfd) file.
     """
 
     with open(f, "wb+") as fp:
-        PFD.build(pfd["meta"], fp)
+        PFD.build(meta, fp)
         for key in ["dms", "periods", "pdots"]:
-            pfd["meta"][key].tofile(fp)
-        pfd["data"].tofile(fp)
-        pfd["meta"]["stats"].tofile(fp)
+            meta[key].tofile(fp)
+        data.tofile(fp)
+        meta["stats"].tofile(fp)

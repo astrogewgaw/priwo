@@ -29,18 +29,18 @@
 [**`priwo`**][priwo] is a library that allows you to read in and write out
 pulsar data from the following data formats:
 
-* [**`SIGPROC`**][sigproc] headers,
-* [**`PRESTO`**][presto] FFT (`*.fft`) files,
-* [**`TEMPO`**][tempo] parameter (`*.par`) files,
-* [**`PRESTO`**][presto] infodata (`*.inf`) files,
-* [**`PRESTO`**][presto] folded data (`*.pfd`) files,
-* [**`PRESTO`**][presto] time series (`*.dat`) files,
-* [**`SIGPROC`**][sigproc] filterbank (`*.fil`) files,
-* [**`SIGPROC`**][sigproc] time series (`*.tim`) files,
-* [**`PRESTO`**][presto] best pulse profile (`*.bestprof`) files,
-* [**`TEMPO`**][tempo] polynomial ephemerides (`*.polycos`) files.
+- [**`SIGPROC`**][sigproc] headers,
+- [**`PRESTO`**][presto] FFT (`*.fft`) files,
+- [**`TEMPO`**][tempo] parameter (`*.par`) files,
+- [**`PRESTO`**][presto] infodata (`*.inf`) files,
+- [**`PRESTO`**][presto] folded data (`*.pfd`) files,
+- [**`PRESTO`**][presto] time series (`*.dat`) files,
+- [**`SIGPROC`**][sigproc] filterbank (`*.fil`) files,
+- [**`SIGPROC`**][sigproc] time series (`*.tim`) files,
+- [**`PRESTO`**][presto] best pulse profile (`*.bestprof`) files,
+- [**`TEMPO`**][tempo] polynomial ephemerides (`*.polycos`) files.
 
-`priwo`'s API is deliberately *low-level*: each function in `priwo` deals with a
+`priwo`'s API is deliberately _low-level_: each function in `priwo` deals with a
 single file format and takes/returns a Python dictionary. This allows users to
 design arbitrary high-level APIs on top of `priwo`'s functionality. This is
 unlike most other contemporary libraries, such as [**`your`**][your]. `your` (to
@@ -70,9 +70,10 @@ pip install priwo
 
 <br/>
 
-[^1]: [**`pabo`**][pabo] is a package I made to make parsing binary data easier,
-  and it *also* has just two dependencies : [**`attrs`**][attrs] and
-  [**`numpy`**][numpy].
+[^1]:
+    [**`pabo`**][pabo] is a package I made to make parsing binary data easier,
+    and it _also_ has just two dependencies : [**`attrs`**][attrs] and
+    [**`numpy`**][numpy].
 
 </div>
 
@@ -94,7 +95,6 @@ pip install priwo
 [discussions]: https://github.com/astrogewgaw/priwo/discussions
 [dependency_hell]: https://en.wikipedia.org/wiki/Dependency_hell
 [psrfits]: https://www.atnf.csiro.au/research/pulsar/psrfits_definition/Psrfits.html
-
 [interrogate-badge]: assets/docs_cov.svg
 [dm-badge]: https://img.shields.io/pypi/dm/priwo?style=for-the-badge
 [version-badge]: https://img.shields.io/pypi/v/priwo?style=for-the-badge
@@ -107,4 +107,4 @@ pip install priwo
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge
 [docs-badge]: https://readthedocs.org/projects/priwo/badge/?version=latest&style=for-the-badge
 [gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=for-the-badge
-[tests-badge]: https://img.shields.io/github/actions/workflow/status/astrogewgaw/priwo/test.yml?branch=dev&style=for-the-badge 
+[tests-badge]: https://img.shields.io/github/actions/workflow/status/astrogewgaw/priwo/test.yml?branch=dev&style=for-the-badge

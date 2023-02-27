@@ -9,21 +9,17 @@ from priwo.presto.inf import writeinf
 
 
 def readfft(f):
-
     """
     Read in a PRESTO FFT (*.fft) file.
     """
 
-    meta = readinf(Path(f).with_suffix(".inf"))
-    data = np.fromfile(f, dtype=np.float32)
-    return {"meta": meta, "data": data}
+    return (readinf(Path(f).with_suffix(".inf")), np.fromfile(f, dtype=np.float32))
 
 
-def writefft(fft, f):
-
+def writefft(meta, data, f):
     """
     Write out a PRESTO FFT (*.fft) file.
     """
 
-    writeinf(fft["meta"], Path(f).with_suffix(".inf"))
-    fft["data"].tofile(f)
+    writeinf(meta, Path(f).with_suffix(".inf"))
+    data.tofile(f)

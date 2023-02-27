@@ -13,7 +13,8 @@ def data():
 
 
 def check(f, array):
-    assert np.allclose(readfil(f)["data"][64, 100:110], array)
+    _, data = readfil(f)
+    assert np.allclose(data[64, 100:110], array)
 
 
 for n, array in {
@@ -45,5 +46,5 @@ for n, array in {
     @test(f"{str(writefil.__doc__).strip()} ({n}-bit data).")
     def _(f=data().joinpath(f"test_{n}bit.fil"), array=array):
         with NamedTemporaryFile(suffix=".fil") as fp:
-            writefil(readfil(f), fp.name)
+            writefil(*readfil(f), fp.name)
             check(fp.name, array)

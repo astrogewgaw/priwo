@@ -2,7 +2,7 @@ from ward import test
 from ward import fixture
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from priwo.timing.coeff import readpolycos, writepolycos
+from priwo.timing.polycos import readpolycos, writepolycos
 
 
 @fixture

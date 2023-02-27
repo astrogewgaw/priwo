@@ -8,7 +8,6 @@ from priwo.sigproc.hdr import writehdr
 
 
 def readtim(f):
-
     """
     Read in a SIGPROC time series (*.tim) file.
     """
@@ -31,21 +30,17 @@ def readtim(f):
             }[nbits],
             packing=(nbits if nbits in [1, 2, 4] else None),
         ).parse(fp)
-    return {"meta": meta, "data": data}
+    return meta, data
 
 
-def writetim(tim, f):
-
+def writetim(meta, data, f):
     """
     Write out a SIGPROC time series (*.tim) file.
     """
 
-    meta = tim["meta"]
-    data = tim["data"]
+    writehdr(meta, f)
     size = meta["size"]
     nbits = meta.get("nbits", None)
-
-    writehdr(meta, f)
     with open(f, "ab") as fp:
         fp.seek(size)
         pb.Array(

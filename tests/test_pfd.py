@@ -13,7 +13,7 @@ def data():
 
 
 def check(f):
-    meta = readpfd(f)["meta"]
+    meta, _ = readpfd(f)
     for _ in [
         "dms",
         "pdots",
@@ -88,5 +88,5 @@ def _(f=data().joinpath("test.pfd")):
 @test(f"{str(writepfd.__doc__).strip()}")
 def _(f=data().joinpath("test.pfd")):
     with NamedTemporaryFile(suffix=".pfd") as fp:
-        writepfd(readpfd(f), fp.name)
+        writepfd(*readpfd(f), fp.name)
         check(fp.name)

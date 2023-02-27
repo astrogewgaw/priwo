@@ -24,80 +24,66 @@ numeral = (
 
 
 def readbpf(f):
-
     """
     Read in a PRESTO best pulse profile (*.bestprof) file.
     """
 
-    bpf = {}
     meta = {}
-
     with open(f, "r") as fp:
         lines = fp.read()
-
-    profile = np.asarray(re.findall(r"^\s+\d+\s+(.+)$", lines, re.M), dtype=np.float32)
-    header = re.findall(r"^#.*", lines, re.M)
-    header = header[:-1]
-
-    for key, val in {
-        name: only([validator(_) for _ in string.strip().split("+/-")])
-        for (name, validator), string in zip(
-            {
-                # fmt: off
-                "filename":     strings,
-                "candidate":    strings,
-                "telescope":    strings,
-                "topo_epoch":   numeral,
-                "bary_epoch":   numeral,
-                "tsamp":        numeral,
-                "nsamp":        numeral,
-                "data_avg":     numeral,
-                "data_std":     numeral,
-                "prof_bins":    numeral,
-                "prof_avg":     numeral,
-                "prof_std":     numeral,
-                "red_chi_sqr":  numeral,
-                "noise_sigma":  numeral,
-                "dm":           numeral,
-                "p_topo":       numeral,
-                "pd_topo":      numeral,
-                "pdd_topo":     numeral,
-                "p_bary":       numeral,
-                "pd_bary":      numeral,
-                "pdd_bary":     numeral,
-                "p_orb":        numeral,
-                "asini_by_c":   numeral,
-                "eccentricity": numeral,
-                "w":            numeral,
-                "t_peri":       numeral,
-                # fmt: on
-            }.items(),
-            [re.split(r"\s+[=<>]\s+", line)[-1] for line in header],
-        )
-    }.items():
-        if isinstance(val, list):
-            if key == "noise_sigma":
-                meta[key] = val[-1]
+        header = re.findall(r"^#.*", lines, re.M)[:-1]
+        for key, val in {
+            name: only([validator(_) for _ in string.strip().split("+/-")])
+            for (name, validator), string in zip(
+                {
+                    # fmt: off
+                    "filename":     strings,
+                    "candidate":    strings,
+                    "telescope":    strings,
+                    "topo_epoch":   numeral,
+                    "bary_epoch":   numeral,
+                    "tsamp":        numeral,
+                    "nsamp":        numeral,
+                    "data_avg":     numeral,
+                    "data_std":     numeral,
+                    "prof_bins":    numeral,
+                    "prof_avg":     numeral,
+                    "prof_std":     numeral,
+                    "red_chi_sqr":  numeral,
+                    "noise_sigma":  numeral,
+                    "dm":           numeral,
+                    "p_topo":       numeral,
+                    "pd_topo":      numeral,
+                    "pdd_topo":     numeral,
+                    "p_bary":       numeral,
+                    "pd_bary":      numeral,
+                    "pdd_bary":     numeral,
+                    "p_orb":        numeral,
+                    "asini_by_c":   numeral,
+                    "eccentricity": numeral,
+                    "w":            numeral,
+                    "t_peri":       numeral,
+                    # fmt: on
+                }.items(),
+                [re.split(r"\s+[=<>]\s+", line)[-1] for line in header],
+            )
+        }.items():
+            if isinstance(val, list):
+                if key == "noise_sigma":
+                    meta[key] = val[-1]
+                else:
+                    meta[key] = val[0]
+                    meta["".join([key, "_err"])] = val[1]
             else:
-                meta[key] = val[0]
-                meta["".join([key, "_err"])] = val[1]
-        else:
-            meta[key] = val
-
-    bpf["meta"] = meta
-    bpf["data"] = profile
-
-    return bpf
+                meta[key] = val
+        data = np.asarray(re.findall(r"^\s+\d+\s+(.+)$", lines, re.M), dtype=np.float32)
+    return meta, data
 
 
-def writebpf(bpf, f):
-
+def writebpf(meta, data, f):
     """
     Write out a PRESTO best pulse profile (*.bestprof) file.
     """
-
-    meta = bpf["meta"]
-    data = bpf["data"]
 
     copy = {}
     for key, val in meta.items():

@@ -38,7 +38,8 @@ def array():
 
 
 def check(f):
-    assert np.allclose(readdat(f)["data"], array())
+    _, data = readdat(f)
+    assert np.allclose(data, array())
 
 
 @test(f"{str(readdat.__doc__).strip()}")
@@ -49,5 +50,5 @@ def _(f=data().joinpath("test.dat")):
 @test(f"{str(writedat.__doc__).strip()}")
 def _(f=data().joinpath("test.dat")):
     with NamedTemporaryFile(suffix=".bestprof") as fp:
-        writedat(readdat(f), fp.name)
+        writedat(*readdat(f), fp.name)
         check(fp.name)

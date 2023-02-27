@@ -38,7 +38,8 @@ def array():
 
 
 def check(f):
-    assert np.allclose(readtim(f)["data"], array())
+    _, data = readtim(f)
+    assert np.allclose(data, array())
 
 
 for label, fname in [
@@ -54,5 +55,5 @@ for label, fname in [
     @test(f"{str(writetim.__doc__).strip()} ({label}).")
     def _(f=data().joinpath(f"{fname}")):
         with NamedTemporaryFile(suffix=".tim") as fp:
-            writetim(readtim(f), fp.name)
+            writetim(*readtim(f), fp.name)
             check(fp.name)

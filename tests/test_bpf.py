@@ -11,7 +11,8 @@ def data():
 
 
 def check(f):
-    assert readbpf(f)["meta"] == dict(
+    meta, _ = readbpf(f)
+    assert meta == dict(
         asini_by_c=None,
         bary_epoch=None,
         candidate="PSR_1646-2142",
@@ -52,5 +53,5 @@ def _(f=data().joinpath("test.bestprof")):
 @test(f"{str(writebpf.__doc__).strip()}")
 def _(f=data().joinpath("test.bestprof")):
     with NamedTemporaryFile(suffix=".bestprof") as fp:
-        writebpf(readbpf(f), fp.name)
+        writebpf(*readbpf(f), fp.name)
         check(fp.name)

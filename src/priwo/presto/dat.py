@@ -9,21 +9,17 @@ from priwo.presto.inf import writeinf
 
 
 def readdat(f):
-
     """
     Read in a PRESTO time series (*.dat) file.
     """
 
-    meta = readinf(Path(f).with_suffix(".inf"))
-    data = np.fromfile(f, dtype=np.float32)
-    return {"meta": meta, "data": data}
+    return (readinf(Path(f).with_suffix(".inf")), np.fromfile(f, dtype=np.float32))
 
 
-def writedat(dat, f):
-
+def writedat(meta, data, f):
     """
     Write out a PRESTO time series (*.dat) file.
     """
 
-    writeinf(dat["meta"], Path(f).with_suffix(".inf"))
-    dat["data"].tofile(f)
+    writeinf(meta, Path(f).with_suffix(".inf"))
+    data.tofile(f)
