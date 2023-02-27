@@ -95,7 +95,6 @@ pip install priwo
 [discussions]: https://github.com/astrogewgaw/priwo/discussions
 [dependency_hell]: https://en.wikipedia.org/wiki/Dependency_hell
 [psrfits]: https://www.atnf.csiro.au/research/pulsar/psrfits_definition/Psrfits.html
-[interrogate-badge]: assets/docs_cov.svg
 [dm-badge]: https://img.shields.io/pypi/dm/priwo?style=for-the-badge
 [version-badge]: https://img.shields.io/pypi/v/priwo?style=for-the-badge
 [wheel-badge]: https://img.shields.io/pypi/wheel/priwo?style=for-the-badge
@@ -107,4 +106,5 @@ pip install priwo
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge
 [docs-badge]: https://readthedocs.org/projects/priwo/badge/?version=latest&style=for-the-badge
 [gitmoji-badge]: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=for-the-badge
+[interrogate-badge]: https://raw.githubusercontent.com/astrogewgaw/priwo/main/assets/docs_cov.svg
 [tests-badge]: https://img.shields.io/github/actions/workflow/status/astrogewgaw/priwo/test.yml?branch=dev&style=for-the-badge
