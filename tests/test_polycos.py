@@ -1,57 +1,41 @@
-import numpy as np
-
+from ward import test
+from ward import fixture
 from pathlib import Path
-from deepdiff import DeepDiff
 from tempfile import NamedTemporaryFile
-from priwo import read_polycos, write_polycos
+from priwo.timing.polycos import readpolycos, writepolycos
 
 
-fname = "test_PSR_J1646-2142.polycos"
-fdata = {
-    "psrname": "1646-2142",
-    "date": "14-JUL-19",
-    "utc": "50000.00",
-    "tmid": 58678.2083333333,
-    "dm": 29.741,
-    "doppler": 0.605,
-    "log10rms": -6.064,
-    "ref_phase": 30728623742.9709,
-    "ref_rot": 170.849389109675,
-    "obs_code": 27,
-    "data_span": 60.0,
-    "num_coeff": 12,
-    "obs_freq": 399.805,
-    "bin_phz": None,
-}
+@fixture
+def data():
+    return Path(__file__).parent.joinpath("data")
 
 
-def test_read_polycos(datadir):
-
-    """
-    Test reading in a `*.polycos` file.
-    """
-
-    polycos = read_polycos(datadir.joinpath(fname))
-    assert np.allclose(
-        polycos[0].pop("coeffs"),
-        np.load(datadir.joinpath("coeffs.npy")),
-        equal_nan=True,
+def check(f):
+    assert readpolycos(f)[0]["meta"] == dict(
+        name="1646-2142",
+        date="14-JUL-19",
+        utc="50000.00",
+        tmid=58678.2083333333,
+        dm=29.741,
+        doppler=0.605,
+        rms=-6.064,
+        refphz=30728623742.9709,
+        reff0=170.849389109675,
+        obsno=27,
+        span=60.0,
+        ncoeff=12,
+        freq=399.805,
+        binphz=105.0,
     )
-    assert DeepDiff(fdata, polycos[0]) == {}
 
 
-def test_write_polycos(datadir):
+@test(f"{str(readpolycos.__doc__).strip()}")
+def _(f=data().joinpath("test.polycos")):
+    check(f)
 
-    """
-    Test writing out a `*.polycos` file.
-    """
 
-    with NamedTemporaryFile(suffix=".polycos") as tfobj:
-        write_polycos(read_polycos(datadir.joinpath(fname)), Path(tfobj.name))
-        polycos = read_polycos(tfobj.name)
-        assert np.allclose(
-            polycos[0].pop("coeffs"),
-            np.load(datadir.joinpath("coeffs.npy")),
-            equal_nan=True,
-        )
-        assert DeepDiff(fdata, polycos[0]) == {}
+@test(f"{str(writepolycos.__doc__).strip()}")
+def _(f=data().joinpath("test.polycos")):
+    with NamedTemporaryFile(suffix=".polycos") as fp:
+        writepolycos(readpolycos(f), fp.name)
+        check(fp.name)

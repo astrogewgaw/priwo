@@ -1,4 +1,4 @@
-nbsphinx
+furo
 myst_parser
 sphinx_sitemap
 sphinx_copybutton

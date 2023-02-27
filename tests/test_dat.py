@@ -1,62 +1,54 @@
 import numpy as np
 
+from ward import test
+from ward import fixture
 from pathlib import Path
-from deepdiff import DeepDiff
-from priwo import read_dat, write_dat
 from tempfile import NamedTemporaryFile
+from priwo.presto.dat import readdat, writedat
 
 
-fnames = [
-    "test_fake_presto_radio.dat",
-    "test_fake_presto_radio_breaks.dat",
-    "test_fake_presto_xray.dat",
-]
-
-fdata = np.asarray(
-    [
-        0.0,
-        1.0,
-        2.0,
-        3.0,
-        4.0,
-        5.0,
-        6.0,
-        7.0,
-        8.0,
-        9.0,
-        10.0,
-        11.0,
-        12.0,
-        13.0,
-        14.0,
-        15.0,
-    ],
-    dtype=np.float32,
-)
+@fixture
+def data():
+    return Path(__file__).parent.joinpath("data")
 
 
-def test_read_dat(datadir):
+@fixture
+def array():
+    return np.asarray(
+        [
+            0.0,
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0,
+            13.0,
+            14.0,
+            15.0,
+        ],
+        dtype=np.float32,
+    )
 
-    """
-    Test reading in a `*.dat` file.
-    """
 
-    for fname in fnames:
-        data = read_dat(datadir.joinpath(fname))["data"]
-        assert DeepDiff(fdata, data) == {}
+def check(f):
+    _, data = readdat(f)
+    assert np.allclose(data, array())
 
 
-def test_write_dat(datadir):
+@test(f"{str(readdat.__doc__).strip()}")
+def _(f=data().joinpath("test.dat")):
+    check(f)
 
-    """
-    Test writing out a `*.dat` file.
-    """
 
-    for fname in fnames:
-        with NamedTemporaryFile(suffix=".dat") as tfobj:
-            write_dat(
-                read_dat(datadir.joinpath(fname)),
-                Path(tfobj.name),
-            )
-            data = read_dat(tfobj.name)["data"]
-            assert DeepDiff(fdata, data) == {}
+@test(f"{str(writedat.__doc__).strip()}")
+def _(f=data().joinpath("test.dat")):
+    with NamedTemporaryFile(suffix=".bestprof") as fp:
+        writedat(*readdat(f), fp.name)
+        check(fp.name)

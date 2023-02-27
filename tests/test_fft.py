@@ -1,51 +1,54 @@
 import numpy as np
 
+from ward import test
+from ward import fixture
 from pathlib import Path
-from deepdiff import DeepDiff
-from priwo import read_fft, write_fft
 from tempfile import NamedTemporaryFile
+from priwo.presto.fft import readfft, writefft
 
 
-fname = "test_fake_presto_radio.fft"
-fdata = np.asarray(
-    [
-        120.0,
-        -8.0,
-        -7.9999995,
-        40.218716,
-        -8.0,
-        19.31371,
-        -8.0,
-        11.972846,
-        -8.0,
-        8.0,
-        -8.0,
-        5.3454294,
-        -8.0,
-        3.3137085,
-        -8.0,
-        1.5912989,
-    ],
-    dtype=np.float32,
-)
+@fixture
+def data():
+    return Path(__file__).parent.joinpath("data")
 
 
-def test_fft(datadir):
+@fixture
+def array():
+    return np.asarray(
+        [
+            120.0,
+            -8.0,
+            -7.9999995,
+            40.218716,
+            -8.0,
+            19.31371,
+            -8.0,
+            11.972846,
+            -8.0,
+            8.0,
+            -8.0,
+            5.3454294,
+            -8.0,
+            3.3137085,
+            -8.0,
+            1.5912989,
+        ],
+        dtype=np.float32,
+    )
 
-    """ """
 
-    data = read_fft(datadir.joinpath(fname))["data"]
-    assert DeepDiff(fdata, data) == {}
+def check(f):
+    _, data = readfft(f)
+    assert np.allclose(data, array())
 
 
-def test_write_fft(datadir):
+@test(f"{str(readfft.__doc__).strip()}")
+def _(f=data().joinpath("test.fft")):
+    check(f)
 
-    """ """
 
-    with NamedTemporaryFile(suffix=".fft") as tfobj:
-        write_fft(
-            read_fft(datadir.joinpath(fname)),
-            Path(tfobj.name),
-        )
-        data = read_fft(tfobj.name)["data"]
-        assert DeepDiff(fdata, data) == {}
+@test(f"{str(writefft.__doc__).strip()}")
+def _(f=data().joinpath("test.fft")):
+    with NamedTemporaryFile(suffix=".fft") as fp:
+        writefft(*readfft(f), fp.name)
+        check(fp.name)

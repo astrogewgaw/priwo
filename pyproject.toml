@@ -1,4 +1,38 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0"]
+requires = [
+    "wheel",
+    "setuptools>=45",
+    "setuptools_scm[toml]>=6.0",
+]
 
 [tool.setuptools_scm]
+write_to = "src/priwo/_version.py"
+
+[tool.interrogate]
+verbose = 0
+color = true
+quiet = false
+fail-under = 85
+badge-format = "svg"
+whitelist-regex = []
+ignore-magic = false
+ignore-module = false
+ignore-private = false
+ignore-setters = false
+ignore-init-method = true
+omit-covered-files = false
+ignore-init-module = false
+ignore-semiprivate = false
+ignore-nested-classes = true
+badge-style = "for-the-badge"
+ignore-nested-functions = false
+ignore-property-decorators = false
+generate-badge = "assets/docs_cov.svg"
+exclude = [
+    "docs",
+    "tests",
+    "build",
+    "assets",
+    "setup.py",
+    "src/priwo/_version.py",
+]
