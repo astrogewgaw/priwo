@@ -8,32 +8,31 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  build: 
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
       fail-fast: false
-    
-    steps:
-    
-    # Setup the testing environment.
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}.
-      uses: actions/setup-python@v4
-      with:
-          python-version: ${{ matrix.python-version }}
-    
-    # Sanity check: check Python version.
-    - name: Display Python version.
-      run: python -c "import sys; print(sys.version)"    
 
-    # Run tests for priwo.
-    - name: Install dependencies.
-      run: |
-        python -m pip install --upgrade pip
-        pip install ward
-        pip install -e .   
-    - name: Run tests for priwo.
-      run: ward
+    steps:
+      # Setup the testing environment.
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}.
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Sanity check: check Python version.
+      - name: Display Python version.
+        run: python -c "import sys; print(sys.version)"
+
+      # Run tests for priwo.
+      - name: Install dependencies.
+        run: |
+          python -m pip install --upgrade pip
+          pip install ward
+          pip install -e .
+      - name: Run tests for priwo.
+        run: ward
