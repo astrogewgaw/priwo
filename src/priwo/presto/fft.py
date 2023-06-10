@@ -2,7 +2,7 @@
 R/W PRESTO FFT (*.fft) files.
 """
 
-import numpy as np
+import pabo as pb
 from pathlib import Path
 from priwo.presto.inf import readinf
 from priwo.presto.inf import writeinf
@@ -13,7 +13,7 @@ def readfft(f):
     Read in a PRESTO FFT (*.fft) file.
     """
 
-    return (readinf(Path(f).with_suffix(".inf")), np.fromfile(f, dtype=np.float32))
+    return (readinf(Path(f).with_suffix(".inf")), pb.Array(pb.Float(4)).parse(f))
 
 
 def writefft(meta, data, f):
@@ -22,4 +22,4 @@ def writefft(meta, data, f):
     """
 
     writeinf(meta, Path(f).with_suffix(".inf"))
-    data.tofile(f)
+    pb.Array(pb.Float(4)).build(data, f)

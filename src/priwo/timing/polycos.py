@@ -3,7 +3,7 @@ R/W TEMPO polynomial ephemerides (*.polycos) files.
 """
 
 import re
-import numpy as np
+import pabo as pb
 
 one = lambda _: _[0]
 pad = lambda _, N: (_ + [None] * N)[:N]
@@ -30,7 +30,6 @@ TEMPLATES = {
 
 
 def readpolycos(f):
-
     """
     Read in a TEMPO polynomial ephemerides (*.polycos) file.
     """
@@ -83,25 +82,32 @@ def readpolycos(f):
                         "binphz":  fx(binphz,  float),
                         # fmt: on
                     },
-                    "data": np.asarray(
-                        [
+                    "data": pb.Array(pb.Float(8)).parse(
+                        b"".join(
                             [
-                                float(re.sub(r"[dD]", "e", _)) if _ else None
-                                for _ in re.findall(
-                                    r"[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eEdD][+\-]?\d+)?",
-                                    fp.readline(),
-                                )
+                                __
+                                for _ in [
+                                    [
+                                        pb.Float(8).build(
+                                            float(re.sub(r"[dD]", "e", _)) if _ else 0.0
+                                        )
+                                        for _ in re.findall(
+                                            r"[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eEdD][+\-]?\d+)?",
+                                            fp.readline(),
+                                        )
+                                    ]
+                                    for _ in range(int(ncoeff) // 3)
+                                ]
+                                for __ in _
                             ]
-                            for _ in range(int(ncoeff) // 3)
-                        ]
-                    ).flatten(),
+                        )
+                    ),
                 }
             )
         return polycos
 
 
 def writepolycos(polycos, f):
-
     """
     Write out a TEMPO polynomial ephemerides (*.polycos) file.
     """

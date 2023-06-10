@@ -3,7 +3,13 @@ R/W PRESTO folded data (*.pfd) files.
 """
 
 import pabo as pb
-import numpy as np
+
+
+def prod(x):
+    res = 1.0
+    for i in x:
+        res *= i
+    return res
 
 
 # fmt: off
@@ -75,17 +81,20 @@ def readpfd(f):
     with open(f, "rb") as fp:
         meta = PFD.parse(fp)
         for key, shape in {
-            "dms": meta["ndms"],
-            "periods": meta["nperiods"],
-            "pdots": meta["npdots"],
+            "dms": (meta["ndms"],),
+            "periods": (meta["nperiods"],),
+            "pdots": (meta["npdots"],),
             "profs": (meta["npart"], meta["nsub"], meta["nbin"]),
             "stats": (7, meta["nsub"], meta["npart"]),
         }.items():
-            meta[key] = np.fromfile(
-                fp,
-                dtype=np.float64,
-                count=np.prod(shape),
-            ).reshape(shape)
+            meta[key] = (
+                pb.Array(
+                    pb.Float(8),
+                    count=int(prod(shape)),
+                )
+                .parse(fp)
+                .reshape(shape)
+            )
         data = meta.pop("profs", None)
         return meta, data
 

@@ -3,7 +3,7 @@ R/W PRESTO best pulse profile (*.bestprof) files.
 """
 
 import re
-import numpy as np
+import pabo as pb
 
 
 only = lambda _: _[0] if len(_) == 1 else _
@@ -76,7 +76,14 @@ def readbpf(f):
                     meta["".join([key, "_err"])] = val[1]
             else:
                 meta[key] = val
-        data = np.asarray(re.findall(r"^\s+\d+\s+(.+)$", lines, re.M), dtype=np.float32)
+        data = pb.Array(pb.Float(4)).parse(
+            b"".join(
+                [
+                    pb.Float(4).build(float(_))
+                    for _ in re.findall(r"^\s+\d+\s+(.+)$", lines, re.M)
+                ]
+            )
+        )
     return meta, data
 
 

@@ -31,7 +31,6 @@ pulsar data from the following data formats:
 
 - [**`SIGPROC`**][sigproc] headers,
 - [**`PRESTO`**][presto] FFT (`*.fft`) files,
-- [**`TEMPO`**][tempo] parameter (`*.par`) files,
 - [**`PRESTO`**][presto] infodata (`*.inf`) files,
 - [**`PRESTO`**][presto] folded data (`*.pfd`) files,
 - [**`PRESTO`**][presto] time series (`*.dat`) files,
@@ -48,7 +47,7 @@ which this library has been frequently compared to) provides a high-level API
 for reading in pulsar data, while also providing modules to help process and
 analyze it. This is makes the number of dependencies it uses is a bit high (as
 of 05/10/22, that is a total of 9 dependencies). On the other hand, `priwo` has
-just 2 dependencies, [**`numpy`**][numpy] and [**`pabo`**][pabo][^1]. This makes
+just a single dependency: [**`pabo`**][pabo][^1]. This makes
 it an ideal choice to drop into your projects, without worrying about
 [**dependency hell**][dependency_hell].
 
@@ -72,7 +71,7 @@ pip install priwo
 
 [^1]:
     [**`pabo`**][pabo] is a package I made to make parsing binary data easier,
-    and it _also_ has just two dependencies : [**`attrs`**][attrs] and
+    and it has just two dependencies : [**`attrs`**][attrs] and
     [**`numpy`**][numpy].
 
 </div>
