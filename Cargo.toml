@@ -1,0 +1,15 @@
+[package]
+name = "priwo"
+edition = "2021"
+version = "0.1.0"
+homepage = "https://github.com/astrogewgaw/priwo"
+repository = "https://github.com/astrogewgaw/priwo"
+description = "I/O for common pulsar data formats."
+authors = ["Ujjwal Panda <ujjwalpanda97@gmail.com>"]
+
+[lib]
+name = "priwo"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.19.0"
