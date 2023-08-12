@@ -13,4 +13,6 @@ classifiers = [
 
 
 [tool.maturin]
+python-source = "py"
+module-name = "priwo._internals"
 features = ["pyo3/extension-module"]
