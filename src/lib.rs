@@ -1,16 +1,16 @@
 mod err;
-#[allow(dead_code)]
 mod fmts;
 
-use numpy::{IntoPyArray, PyArray2};
-use pyo3::prelude::*;
-use pyo3::Python;
+use ndarray::Array;
+use numpy::{IntoPyArray, PyArray1, PyArray2};
 
-use fmts::sigproc::{SIGPROCFilterbank, SIGPROCHeader};
+use pyo3::prelude::*;
+
+use crate::fmts::sigproc::{SIGPROCFilterbank, SIGPROCHeader, SIGPROCTimeSeries};
 
 #[pyfunction]
 fn _parsehdr(i: &[u8]) -> PyResult<SIGPROCHeader> {
-    let (_, hdr) = SIGPROCHeader::from_bytes(i).unwrap();
+    let (_, _, hdr) = SIGPROCHeader::from_bytes(i).unwrap();
     Ok(hdr)
 }
 
@@ -21,11 +21,29 @@ fn _parsefil<'py>(
 ) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray2<f32>)> {
     let fil = SIGPROCFilterbank::from_bytes(i).unwrap();
 
-    let data = fil.data;
     let meta = fil.header;
-    let fil = data.into_pyarray(py);
+    let nf = meta.nchans.unwrap() as usize;
+    let nt = meta.nsamples.unwrap() as usize;
+    let data = fil.raw.iter().map(|x| *x as f32).collect();
+    let data = Array::from_shape_vec((nt, nf), data).unwrap();
+    let data = data.into_pyarray(py);
 
-    Ok((meta, fil))
+    Ok((meta, data))
+}
+
+#[pyfunction]
+fn _parsetim<'py>(
+    py: Python<'py>,
+    i: &'py [u8],
+) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray1<f32>)> {
+    let tim = SIGPROCTimeSeries::from_bytes(i).unwrap();
+
+    let meta = tim.header;
+    let data = tim.raw.iter().map(|x| *x as f32).collect();
+    let data = Array::from_vec(data);
+    let data = data.into_pyarray(py);
+
+    Ok((meta, data))
 }
 
 #[pymodule]
@@ -33,5 +51,6 @@ fn _parsefil<'py>(
 fn _internals(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(_parsehdr, m)?)?;
     m.add_function(wrap_pyfunction!(_parsefil, m)?)?;
+    m.add_function(wrap_pyfunction!(_parsetim, m)?)?;
     Ok(())
 }

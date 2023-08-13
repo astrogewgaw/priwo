@@ -1,5 +1,3 @@
-use std::io;
-
 use nom::error::{FromExternalError, ParseError};
 use thiserror::Error;
 
@@ -9,12 +7,10 @@ pub enum PriwoError {
     InvalidMetadata,
     #[error("Incomplete metadata.")]
     IncompleteMetadata,
-    #[error("External parsing error.")]
-    ExternalParsingError(String),
     #[error("Unknown parsing error.")]
     UnknownParsingError,
-    #[error("Could not open file.")]
-    IOError(#[from] io::Error),
+    #[error("External parsing error.")]
+    ExternalParsingError(String),
 }
 
 impl<I> ParseError<I> for PriwoError {

@@ -1,22 +1,37 @@
 use super::SIGPROCHeader;
 use crate::err::PriwoError;
-use numpy::ndarray::{Array, Array2};
+use nom::number::Endianness;
 
 pub struct SIGPROCFilterbank<'a> {
     pub raw: &'a [u8],
-    pub data: Array2<f32>,
+    pub endian: Endianness,
     pub header: SIGPROCHeader<'a>,
 }
 
 impl<'a> SIGPROCFilterbank<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let (raw, header) = SIGPROCHeader::from_bytes(i)?;
+        let (raw, endian, mut header) = SIGPROCHeader::from_bytes(i)?;
 
-        let nf = header.nchans.unwrap() as usize;
-        let nt = header.nsamples.unwrap() as usize;
-        let data = raw.iter().map(|x| *x as f32).collect();
-        let data = Array::from_shape_vec((nt, nf), data).unwrap();
+        if header.nbits.is_none()
+            && header.nifs.is_none()
+            && header.nchans.is_none()
+            && (header.tsamp.is_none() && header.sampsize.is_none())
+            && (header.fch1.is_none() && header.fbottom.is_none() && header.ftop.is_none())
+            && (header.foff.is_none() && header.fchannel.is_none() && header.bandwidth.is_none())
+        {
+            return Err(PriwoError::InvalidMetadata);
+        }
 
-        Ok(Self { raw, data, header })
+        let nifs = header.nifs.unwrap();
+        let nbits = header.nbits.unwrap();
+        let nchans = header.nchans.unwrap();
+        let nsamp = (i.len() as u32 * 8) / nbits / nchans / nifs;
+        header.nsamples = Some(nsamp);
+
+        Ok(Self {
+            raw,
+            endian,
+            header,
+        })
     }
 }

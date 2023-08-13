@@ -1,8 +1,7 @@
-import numpy as np
-
 from priwo._internals import (
     _parsehdr,
     _parsefil,
+    _parsetim,
 )
 
 
@@ -11,6 +10,13 @@ def readhdr(f):
         meta = _parsehdr(f.read())
     meta = {k: v for k, v in meta.items() if v}
     return meta
+
+
+def readtim(f):
+    with open(f, "rb") as f:
+        meta, data = _parsetim(f.read())
+    meta = {k: v for k, v in meta.items() if v}
+    return meta, data
 
 
 def readfil(f):

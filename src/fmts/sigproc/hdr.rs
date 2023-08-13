@@ -1,4 +1,3 @@
-use dict_derive::{FromPyObject, IntoPyObject};
 use nom::{
     branch::alt,
     bytes::streaming::tag,
@@ -11,6 +10,7 @@ use nom::{
 };
 
 use crate::err::PriwoError;
+use dict_derive::{FromPyObject, IntoPyObject};
 
 type ParseResult<'a, T> = IResult<&'a [u8], T, PriwoError>;
 type FieldResult<'a> = ParseResult<'a, Field<'a>>;
@@ -262,8 +262,8 @@ fn header<'a>(i: &'a [u8]) -> ParseResult<'a, (Endianness, Vec<Field<'a>>)> {
 }
 
 impl<'a> SIGPROCHeader<'a> {
-    pub fn from_bytes(i: &'a [u8]) -> Result<(&'a [u8], Self), PriwoError> {
-        let (i, (_, headers)) = header(i).map_err(|e| match e {
+    pub fn from_bytes(i: &'a [u8]) -> Result<(&'a [u8], Endianness, Self), PriwoError> {
+        let (i, (e, headers)) = header(i).map_err(|e| match e {
             nom::Err::Incomplete(_) => PriwoError::IncompleteMetadata,
             nom::Err::Error(e) => e,
             nom::Err::Failure(e) => e,
@@ -359,14 +359,6 @@ impl<'a> SIGPROCHeader<'a> {
             }
         }
 
-        // TODO: Add checks.
-
-        let nifs = s.nifs.unwrap();
-        let nbits = s.nbits.unwrap();
-        let nchans = s.nchans.unwrap();
-        let nsamp = (i.len() as u32 * 8) / nbits / nchans / nifs;
-        s.nsamples = Some(nsamp);
-
-        Ok((i, s))
+        Ok((i, e, s))
     }
 }
