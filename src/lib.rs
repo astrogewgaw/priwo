@@ -1,12 +1,9 @@
 mod err;
 mod fmts;
 
-use ndarray::Array;
-use numpy::{IntoPyArray, PyArray1, PyArray2};
-
-use pyo3::prelude::*;
-
 use crate::fmts::sigproc::{SIGPROCFilterbank, SIGPROCHeader, SIGPROCTimeSeries};
+use numpy::{IntoPyArray, PyArray1, PyArray2};
+use pyo3::prelude::*;
 
 #[pyfunction]
 fn _parsehdr(i: &[u8]) -> PyResult<SIGPROCHeader> {
@@ -18,14 +15,11 @@ fn _parsehdr(i: &[u8]) -> PyResult<SIGPROCHeader> {
 fn _parsefil<'py>(
     py: Python<'py>,
     i: &'py [u8],
-) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray2<f32>)> {
+) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray2<f64>)> {
     let fil = SIGPROCFilterbank::from_bytes(i).unwrap();
 
+    let data = fil.data;
     let meta = fil.header;
-    let nf = meta.nchans.unwrap() as usize;
-    let nt = meta.nsamples.unwrap() as usize;
-    let data = fil.raw.iter().map(|x| *x as f32).collect();
-    let data = Array::from_shape_vec((nt, nf), data).unwrap();
     let data = data.into_pyarray(py);
 
     Ok((meta, data))
@@ -35,12 +29,11 @@ fn _parsefil<'py>(
 fn _parsetim<'py>(
     py: Python<'py>,
     i: &'py [u8],
-) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray1<f32>)> {
+) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray1<f64>)> {
     let tim = SIGPROCTimeSeries::from_bytes(i).unwrap();
 
+    let data = tim.data;
     let meta = tim.header;
-    let data = tim.raw.iter().map(|x| *x as f32).collect();
-    let data = Array::from_vec(data);
     let data = data.into_pyarray(py);
 
     Ok((meta, data))
