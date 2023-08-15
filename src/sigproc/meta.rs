@@ -359,6 +359,31 @@ impl<'a> SIGPROCMetadata<'a> {
             }
         }
 
+        if s.nbits.is_none()
+            && s.nifs.is_none()
+            && s.nchans.is_none()
+            && (s.tsamp.is_none() && s.sampsize.is_none())
+        {
+            return Err(PriwoError::InvalidMetadata);
+        }
+
+        if s.data_type.unwrap() == 1
+            && (s.fch1.is_none() && s.fbottom.is_none() && s.ftop.is_none())
+            && (s.foff.is_none() && s.fchannel.is_none() && s.bandwidth.is_none())
+        {
+            return Err(PriwoError::InvalidMetadata);
+        }
+
+        if s.data_type.unwrap() == 2 && s.nifs.unwrap() != 1 && s.nchans.unwrap() != 1 {
+            return Err(PriwoError::InvalidMetadata);
+        }
+
+        let nifs = s.nifs.unwrap();
+        let nbits = s.nbits.unwrap();
+        let nchans = s.nchans.unwrap();
+        let nsamp = (i.len() as u32 * 8) / nbits / nchans / nifs;
+        s.nsamples = Some(nsamp);
+
         Ok((i, e, s))
     }
 }

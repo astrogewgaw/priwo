@@ -11,34 +11,12 @@ struct SIGPROCData<'a> {
 
 impl<'a> SIGPROCData<'a> {
     fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let (raw, endian, mut meta) = SIGPROCMetadata::from_bytes(i)?;
-
-        if meta.nbits.is_none()
-            && meta.nifs.is_none()
-            && meta.nchans.is_none()
-            && (meta.tsamp.is_none() && meta.sampsize.is_none())
-        {
-            return Err(PriwoError::InvalidMetadata);
-        }
-
-        if meta.data_type.unwrap() == 1
-            && (meta.fch1.is_none() && meta.fbottom.is_none() && meta.ftop.is_none())
-            && (meta.foff.is_none() && meta.fchannel.is_none() && meta.bandwidth.is_none())
-        {
-            return Err(PriwoError::InvalidMetadata);
-        }
-
-        if meta.data_type.unwrap() == 2 && meta.nifs.unwrap() != 1 && meta.nchans.unwrap() != 1 {
-            return Err(PriwoError::InvalidMetadata);
-        }
+        let (raw, endian, meta) = SIGPROCMetadata::from_bytes(i)?;
 
         let signed = meta.signed;
-        let nifs = meta.nifs.unwrap();
         let nbits = meta.nbits.unwrap();
         let nchans = meta.nchans.unwrap();
-        let nsamp = (raw.len() as u32 * 8) / nbits / nchans / nifs;
-        meta.nsamples = Some(nsamp);
-
+        let nsamp = meta.nsamples.unwrap();
         let shape = (nsamp as usize, nchans as usize);
 
         macro_rules! cast {
