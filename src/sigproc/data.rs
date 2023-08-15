@@ -1,33 +1,43 @@
-use super::SIGPROCHeader;
+use super::SIGPROCMetadata;
 use crate::err::PriwoError;
 use ndarray::{Array, Array2};
 use nom::number::Endianness;
 
-pub struct SIGPROCFilterbank<'a> {
+pub struct SIGPROCData<'a> {
     pub data: Array2<f64>,
     pub endian: Endianness,
-    pub header: SIGPROCHeader<'a>,
+    pub meta: SIGPROCMetadata<'a>,
 }
 
-impl<'a> SIGPROCFilterbank<'a> {
+impl<'a> SIGPROCData<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let (raw, endian, mut header) = SIGPROCHeader::from_bytes(i)?;
+        let (raw, endian, mut meta) = SIGPROCMetadata::from_bytes(i)?;
 
-        if header.nbits.is_none()
-            && header.nifs.is_none()
-            && header.nchans.is_none()
-            && (header.tsamp.is_none() && header.sampsize.is_none())
-            && (header.fch1.is_none() && header.fbottom.is_none() && header.ftop.is_none())
-            && (header.foff.is_none() && header.fchannel.is_none() && header.bandwidth.is_none())
+        if meta.nbits.is_none()
+            && meta.nifs.is_none()
+            && meta.nchans.is_none()
+            && (meta.tsamp.is_none() && meta.sampsize.is_none())
         {
             return Err(PriwoError::InvalidMetadata);
         }
 
-        let nifs = header.nifs.unwrap();
-        let nbits = header.nbits.unwrap();
-        let nchans = header.nchans.unwrap();
+        if meta.data_type.unwrap() == 1
+            && (meta.fch1.is_none() && meta.fbottom.is_none() && meta.ftop.is_none())
+            && (meta.foff.is_none() && meta.fchannel.is_none() && meta.bandwidth.is_none())
+        {
+            return Err(PriwoError::InvalidMetadata);
+        }
+
+        if meta.data_type.unwrap() == 2 && meta.nifs.unwrap() != 1 && meta.nchans.unwrap() != 1 {
+            return Err(PriwoError::InvalidMetadata);
+        }
+
+        let signed = meta.signed;
+        let nifs = meta.nifs.unwrap();
+        let nbits = meta.nbits.unwrap();
+        let nchans = meta.nchans.unwrap();
         let nsamp = (raw.len() as u32 * 8) / nbits / nchans / nifs;
-        header.nsamples = Some(nsamp);
+        meta.nsamples = Some(nsamp);
 
         let shape = (nsamp as usize, nchans as usize);
 
@@ -51,7 +61,6 @@ impl<'a> SIGPROCFilterbank<'a> {
             };
         }
 
-        let signed = header.signed;
         let data = match nbits {
             8 => match signed {
                 Some(v) => {
@@ -68,10 +77,6 @@ impl<'a> SIGPROCFilterbank<'a> {
             _ => unreachable!(),
         };
 
-        Ok(Self {
-            data,
-            endian,
-            header,
-        })
+        Ok(Self { data, meta, endian })
     }
 }

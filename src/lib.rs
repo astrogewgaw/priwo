@@ -1,13 +1,13 @@
 mod err;
-mod fmts;
+mod sigproc;
 
-use crate::fmts::sigproc::{SIGPROCFilterbank, SIGPROCHeader, SIGPROCTimeSeries};
-use numpy::{IntoPyArray, PyArray1, PyArray2};
+use crate::sigproc::{SIGPROCData, SIGPROCMetadata};
+use numpy::{IntoPyArray, PyArray2};
 use pyo3::prelude::*;
 
 #[pyfunction]
-fn _parsehdr(i: &[u8]) -> PyResult<SIGPROCHeader> {
-    let (_, _, hdr) = SIGPROCHeader::from_bytes(i).unwrap();
+fn _parsehdr(i: &[u8]) -> PyResult<SIGPROCMetadata> {
+    let (_, _, hdr) = SIGPROCMetadata::from_bytes(i).unwrap();
     Ok(hdr)
 }
 
@@ -15,11 +15,11 @@ fn _parsehdr(i: &[u8]) -> PyResult<SIGPROCHeader> {
 fn _parsefil<'py>(
     py: Python<'py>,
     i: &'py [u8],
-) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray2<f64>)> {
-    let fil = SIGPROCFilterbank::from_bytes(i).unwrap();
+) -> PyResult<(SIGPROCMetadata<'py>, &'py PyArray2<f64>)> {
+    let fil = SIGPROCData::from_bytes(i).unwrap();
 
     let data = fil.data;
-    let meta = fil.header;
+    let meta = fil.meta;
     let data = data.into_pyarray(py);
 
     Ok((meta, data))
@@ -29,11 +29,11 @@ fn _parsefil<'py>(
 fn _parsetim<'py>(
     py: Python<'py>,
     i: &'py [u8],
-) -> PyResult<(SIGPROCHeader<'py>, &'py PyArray1<f64>)> {
-    let tim = SIGPROCTimeSeries::from_bytes(i).unwrap();
+) -> PyResult<(SIGPROCMetadata<'py>, &'py PyArray2<f64>)> {
+    let tim = SIGPROCData::from_bytes(i).unwrap();
 
     let data = tim.data;
-    let meta = tim.header;
+    let meta = tim.meta;
     let data = data.into_pyarray(py);
 
     Ok((meta, data))

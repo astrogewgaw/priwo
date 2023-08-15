@@ -6,6 +6,7 @@ alias d := docs
 alias c := clean
 alias i := install
 alias u := uninstall
+alias dc := deepclean
 
 
 # List available commands.
@@ -25,8 +26,9 @@ default:
     grid.add_row("clean ([i]c[/i])", "Clean up")
     grid.add_row("test ([i]t[/i])", "Run tests")
     grid.add_row("install ([i]i[/i])", "Install")
-    grid.add_row("uninstall ([i]u[/i])", "Uninstall")
     grid.add_row("docs ([i]d[/i])", "Build docs.")
+    grid.add_row("uninstall ([i]u[/i])", "Uninstall")
+    grid.add_row("deep clean ([i]dc[/i])", "Deep clean up")
 
     console.print(
         Panel(
@@ -56,8 +58,8 @@ default:
     fd -I -e pyc -x rm -rf
     fd -I __pycache__ -x rm -rf
 
-@cleanse: && clean
-  echo "Deep cleanse..."
+@deepclean: && clean
+  echo "Deep clean..."
   cargo clean
 
 # Run tests.

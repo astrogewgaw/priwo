@@ -150,7 +150,7 @@ enum Field<'a> {
 }
 
 #[derive(FromPyObject, IntoPyObject)]
-pub struct SIGPROCHeader<'a> {
+pub struct SIGPROCMetadata<'a> {
     pub filename: Option<&'a str>,
     pub telescope_id: Option<u32>,
     pub telescope: Option<&'a str>,
@@ -261,7 +261,7 @@ fn header<'a>(i: &'a [u8]) -> ParseResult<'a, (Endianness, Vec<Field<'a>>)> {
     Ok((i, (endian, headers)))
 }
 
-impl<'a> SIGPROCHeader<'a> {
+impl<'a> SIGPROCMetadata<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<(&'a [u8], Endianness, Self), PriwoError> {
         let (i, (e, headers)) = header(i).map_err(|e| match e {
             nom::Err::Incomplete(_) => PriwoError::IncompleteMetadata,
