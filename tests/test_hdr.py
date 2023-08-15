@@ -28,6 +28,7 @@ def check(f):
         nbeams=1,
         ibeam=0,
         nbits=8,
+        nsamples=10,
         tstart=58682.620316710374,
         tsamp=0.00126646875,
         nifs=1,

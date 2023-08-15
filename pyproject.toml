@@ -6,13 +6,21 @@ build-backend = "maturin"
 name = "priwo"
 requires-python = ">=3.7"
 classifiers = [
-    "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
+  "License :: OSI Approved :: MIT License",
+
+  "Operating System :: Unix",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Programming Language :: Python :: Implementation :: CPython",
+
+  "Topic :: Scientific/Engineering :: Astronomy",
 ]
 
 
 [tool.maturin]
 python-source = "py"
+features = ["python"]
 module-name = "priwo._internals"
-features = ["pyo3/extension-module"]

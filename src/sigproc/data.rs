@@ -59,12 +59,14 @@ impl<'a> SIGPROCData<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct SIGPROCFilterbank<'a> {
     pub data: Array2<f64>,
     pub endian: Endianness,
     pub meta: SIGPROCMetadata<'a>,
 }
 
+#[derive(Debug)]
 pub struct SIGPROCTimeSeries<'a> {
     pub data: Array1<f64>,
     pub endian: Endianness,
