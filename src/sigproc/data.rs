@@ -1,16 +1,16 @@
 use super::SIGPROCMetadata;
 use crate::err::PriwoError;
-use ndarray::{Array, Array2};
+use ndarray::{Array, Array1, Array2};
 use nom::number::Endianness;
 
-pub struct SIGPROCData<'a> {
-    pub data: Array2<f64>,
-    pub endian: Endianness,
-    pub meta: SIGPROCMetadata<'a>,
+struct SIGPROCData<'a> {
+    data: Array2<f64>,
+    endian: Endianness,
+    meta: SIGPROCMetadata<'a>,
 }
 
 impl<'a> SIGPROCData<'a> {
-    pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
+    fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
         let (raw, endian, mut meta) = SIGPROCMetadata::from_bytes(i)?;
 
         if meta.nbits.is_none()
@@ -78,5 +78,39 @@ impl<'a> SIGPROCData<'a> {
         };
 
         Ok(Self { data, meta, endian })
+    }
+}
+
+pub struct SIGPROCFilterbank<'a> {
+    pub data: Array2<f64>,
+    pub endian: Endianness,
+    pub meta: SIGPROCMetadata<'a>,
+}
+
+pub struct SIGPROCTimeSeries<'a> {
+    pub data: Array1<f64>,
+    pub endian: Endianness,
+    pub meta: SIGPROCMetadata<'a>,
+}
+
+impl<'a> SIGPROCFilterbank<'a> {
+    pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
+        let s = SIGPROCData::from_bytes(i)?;
+        Ok(Self {
+            data: s.data,
+            meta: s.meta,
+            endian: s.endian,
+        })
+    }
+}
+
+impl<'a> SIGPROCTimeSeries<'a> {
+    pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
+        let s = SIGPROCData::from_bytes(i)?;
+        Ok(Self {
+            meta: s.meta,
+            endian: s.endian,
+            data: Array::from_iter(s.data.iter().cloned()),
+        })
     }
 }

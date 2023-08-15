@@ -21,7 +21,6 @@ def readtim(f):
     """
     with open(f, "rb") as f:
         meta, data = _parsetim(f.read())
-    data = data[0]
     meta = {k: v for k, v in meta.items() if v is not None}
     return meta, data
 
@@ -32,6 +31,5 @@ def readfil(f):
     """
     with open(f, "rb") as f:
         meta, data = _parsefil(f.read())
-    data = data[0]
     meta = {k: v for k, v in meta.items() if v is not None}
     return meta, data

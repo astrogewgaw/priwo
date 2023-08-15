@@ -1,5 +1,5 @@
 mod data;
 mod meta;
 
-pub use data::SIGPROCData;
+pub use data::{SIGPROCFilterbank, SIGPROCTimeSeries};
 pub use meta::SIGPROCMetadata;
