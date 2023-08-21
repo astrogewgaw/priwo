@@ -63,13 +63,13 @@ enum Field<'a> {
     FoldP(f64),
     FoldPd(f64),
     FoldPdd(f64),
-    Pb(f64),
-    E(f64),
-    X(f64),
-    W(f64),
-    T(f64),
-    Pbd(f64),
-    Wd(f64),
+    OrbP(f64),
+    OrbE(f64),
+    OrbX(f64),
+    OrbW(f64),
+    OrbT(f64),
+    OrbPd(f64),
+    OrbWd(f64),
 }
 
 fn parse(i: &[u8]) -> ParseResult<'_, Vec<Field<'_>>> {
@@ -118,13 +118,13 @@ fn parse(i: &[u8]) -> ParseResult<'_, Vec<Field<'_>>> {
     let (i, fold_p) = f64(endian)(i)?;
     let (i, fold_pd) = f64(endian)(i)?;
     let (i, fold_pdd) = f64(endian)(i)?;
-    let (i, pb) = f64(endian)(i)?;
-    let (i, e) = f64(endian)(i)?;
-    let (i, x) = f64(endian)(i)?;
-    let (i, w) = f64(endian)(i)?;
-    let (i, t) = f64(endian)(i)?;
-    let (i, pbd) = f64(endian)(i)?;
-    let (i, wd) = f64(endian)(i)?;
+    let (i, orb_p) = f64(endian)(i)?;
+    let (i, orb_e) = f64(endian)(i)?;
+    let (i, orb_x) = f64(endian)(i)?;
+    let (i, orb_w) = f64(endian)(i)?;
+    let (i, orb_t) = f64(endian)(i)?;
+    let (i, orb_pd) = f64(endian)(i)?;
+    let (i, orb_wd) = f64(endian)(i)?;
 
     Ok((
         i,
@@ -168,13 +168,13 @@ fn parse(i: &[u8]) -> ParseResult<'_, Vec<Field<'_>>> {
             Field::FoldP(fold_p),
             Field::FoldPd(fold_pd),
             Field::FoldPdd(fold_pdd),
-            Field::Pb(pb),
-            Field::E(e),
-            Field::X(x),
-            Field::W(w),
-            Field::T(t),
-            Field::Pbd(pbd),
-            Field::Wd(wd),
+            Field::OrbP(orb_p),
+            Field::OrbE(orb_e),
+            Field::OrbX(orb_x),
+            Field::OrbW(orb_w),
+            Field::OrbT(orb_t),
+            Field::OrbPd(orb_pd),
+            Field::OrbWd(orb_wd),
         ],
     ))
 }
@@ -220,13 +220,13 @@ pub struct PRESTOFoldedData<'a> {
     pub fold_p: Option<f64>,
     pub fold_pd: Option<f64>,
     pub fold_pdd: Option<f64>,
-    pub pb: Option<f64>,
-    pub e: Option<f64>,
-    pub x: Option<f64>,
-    pub w: Option<f64>,
-    pub t: Option<f64>,
-    pub pbd: Option<f64>,
-    pub wd: Option<f64>,
+    pub orb_p: Option<f64>,
+    pub orb_e: Option<f64>,
+    pub orb_x: Option<f64>,
+    pub orb_w: Option<f64>,
+    pub orb_t: Option<f64>,
+    pub orb_pd: Option<f64>,
+    pub orb_wd: Option<f64>,
 }
 
 impl<'a> PRESTOFoldedData<'a> {
@@ -277,13 +277,13 @@ impl<'a> PRESTOFoldedData<'a> {
             fold_p: None,
             fold_pd: None,
             fold_pdd: None,
-            pb: None,
-            e: None,
-            x: None,
-            w: None,
-            t: None,
-            pbd: None,
-            wd: None,
+            orb_p: None,
+            orb_e: None,
+            orb_x: None,
+            orb_w: None,
+            orb_t: None,
+            orb_pd: None,
+            orb_wd: None,
         };
 
         for field in fields {
@@ -327,13 +327,13 @@ impl<'a> PRESTOFoldedData<'a> {
                 Field::FoldP(x) => s.fold_p = Some(x),
                 Field::FoldPd(x) => s.fold_pd = Some(x),
                 Field::FoldPdd(x) => s.fold_pdd = Some(x),
-                Field::Pb(x) => s.pb = Some(x),
-                Field::E(x) => s.e = Some(x),
-                Field::X(x) => s.x = Some(x),
-                Field::W(x) => s.w = Some(x),
-                Field::T(x) => s.t = Some(x),
-                Field::Pbd(x) => s.pbd = Some(x),
-                Field::Wd(x) => s.wd = Some(x),
+                Field::OrbP(x) => s.orb_p = Some(x),
+                Field::OrbE(x) => s.orb_e = Some(x),
+                Field::OrbX(x) => s.orb_x = Some(x),
+                Field::OrbW(x) => s.orb_w = Some(x),
+                Field::OrbT(x) => s.orb_t = Some(x),
+                Field::OrbPd(x) => s.orb_pd = Some(x),
+                Field::OrbWd(x) => s.orb_wd = Some(x),
             }
         }
 

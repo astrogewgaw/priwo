@@ -204,13 +204,13 @@ fn _parsepfd<'py>(py: Python<'py>, i: &[u8]) -> PyResult<&'py PyDict> {
     dict.set_item("fold_p", pfd.fold_p.into_py(py))?;
     dict.set_item("fold_pd", pfd.fold_pd.into_py(py))?;
     dict.set_item("fold_pdd", pfd.fold_pdd.into_py(py))?;
-    dict.set_item("pb", pfd.pb.into_py(py))?;
-    dict.set_item("e", pfd.e.into_py(py))?;
-    dict.set_item("x", pfd.x.into_py(py))?;
-    dict.set_item("w", pfd.w.into_py(py))?;
-    dict.set_item("t", pfd.t.into_py(py))?;
-    dict.set_item("pbd", pfd.pbd.into_py(py))?;
-    dict.set_item("wd", pfd.wd.into_py(py))?;
+    dict.set_item("orb_p", pfd.orb_p.into_py(py))?;
+    dict.set_item("orb_e", pfd.orb_e.into_py(py))?;
+    dict.set_item("orb_x", pfd.orb_x.into_py(py))?;
+    dict.set_item("orb_w", pfd.orb_w.into_py(py))?;
+    dict.set_item("orb_t", pfd.orb_t.into_py(py))?;
+    dict.set_item("orb_pd", pfd.orb_pd.into_py(py))?;
+    dict.set_item("orb_wd", pfd.orb_wd.into_py(py))?;
 
     Ok(dict)
 }
