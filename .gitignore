@@ -31,3 +31,4 @@ pip-selfcheck.json
 sdist/
 var/
 venv/
+Cargo.lock
