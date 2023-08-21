@@ -2,6 +2,7 @@ from priwo._internals import (
     _parsehdr,
     _parsefil,
     _parsetim,
+    _parsepfd,
 )
 
 
@@ -33,3 +34,13 @@ def readfil(f):
         meta, data = _parsefil(f.read())
     meta = {k: v for k, v in meta.items() if v is not None}
     return meta, data
+
+
+def readpfd(f):
+    """
+    Read in a PRESTO folded data (*.pfd) file.
+    """
+    with open(f, "rb") as f:
+        meta = _parsepfd(f.read())
+    meta = {k: v for k, v in meta.items() if v is not None}
+    return meta

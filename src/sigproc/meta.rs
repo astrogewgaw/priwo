@@ -11,9 +11,6 @@ use nom::{
 
 use crate::err::PriwoError;
 
-#[cfg(feature = "python")]
-use dict_derive::{FromPyObject, IntoPyObject};
-
 type ParseResult<'a, T> = IResult<&'a [u8], T, PriwoError>;
 type FieldResult<'a> = ParseResult<'a, Field<'a>>;
 
@@ -152,7 +149,6 @@ enum Field<'a> {
 }
 
 #[derive(Debug)]
-#[cfg_attr(feature = "python", derive(FromPyObject, IntoPyObject))]
 pub struct SIGPROCMetadata<'a> {
     pub filename: Option<&'a str>,
     pub telescope_id: Option<u32>,
