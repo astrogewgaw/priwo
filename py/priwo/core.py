@@ -41,6 +41,6 @@ def readpfd(f):
     Read in a PRESTO folded data (*.pfd) file.
     """
     with open(f, "rb") as f:
-        meta = _parsepfd(f.read())
+        meta, data = _parsepfd(f.read())
     meta = {k: v for k, v in meta.items() if v is not None}
-    return meta
+    return meta, data

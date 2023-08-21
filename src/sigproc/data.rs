@@ -3,66 +3,58 @@ use crate::err::PriwoError;
 use ndarray::{Array, Array1, Array2};
 use nom::number::Endianness;
 
-struct SIGPROCData<'a> {
-    data: Array2<f64>,
-    endian: Endianness,
-    meta: SIGPROCMetadata<'a>,
-}
+fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, Endianness, SIGPROCMetadata<'_>), PriwoError> {
+    let (raw, endian, meta) = SIGPROCMetadata::from_bytes(i)?;
 
-impl<'a> SIGPROCData<'a> {
-    fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let (raw, endian, meta) = SIGPROCMetadata::from_bytes(i)?;
+    let signed = meta.signed;
+    let nbits = meta.nbits.unwrap();
+    let nchans = meta.nchans.unwrap();
+    let nsamp = meta.nsamples.unwrap();
+    let shape = (nsamp as usize, nchans as usize);
 
-        let signed = meta.signed;
-        let nbits = meta.nbits.unwrap();
-        let nchans = meta.nchans.unwrap();
-        let nsamp = meta.nsamples.unwrap();
-        let shape = (nsamp as usize, nchans as usize);
-
-        macro_rules! cast {
-            ($ty: ident) => {
-                Array::from_shape_vec(
-                    shape,
-                    raw.chunks_exact(nbits as usize / 8usize)
-                        .map(|x| {
-                            (match endian {
-                                Endianness::Big => $ty::from_be_bytes,
-                                Endianness::Little => $ty::from_le_bytes,
-                                _ => unreachable!(),
-                            })(x.try_into().unwrap())
-                        })
-                        .collect(),
-                )
-                .unwrap()
-                .mapv(|x| x as f64)
-                .reversed_axes()
-            };
-        }
-
-        let data = match nbits {
-            8 => match signed {
-                Some(v) => {
-                    if v {
-                        cast!(i8)
-                    } else {
-                        cast!(u8)
-                    }
-                }
-                None => cast!(u8),
-            },
-            16 => cast!(u16),
-            32 => cast!(f32),
-            _ => unreachable!(),
+    macro_rules! cast {
+        ($ty: ident) => {
+            Array::from_shape_vec(
+                shape,
+                raw.chunks_exact(nbits as usize / 8usize)
+                    .map(|x| {
+                        (match endian {
+                            Endianness::Big => $ty::from_be_bytes,
+                            Endianness::Little => $ty::from_le_bytes,
+                            _ => unreachable!(),
+                        })(x.try_into().unwrap())
+                    })
+                    .collect(),
+            )
+            .unwrap()
+            .mapv(|x| x as f64)
+            .reversed_axes()
         };
-
-        Ok(Self { data, meta, endian })
     }
+
+    let data = match nbits {
+        8 => match signed {
+            Some(v) => {
+                if v {
+                    cast!(i8)
+                } else {
+                    cast!(u8)
+                }
+            }
+            None => cast!(u8),
+        },
+        16 => cast!(u16),
+        32 => cast!(f32),
+        _ => unreachable!(),
+    };
+
+    Ok((data, endian, meta))
 }
 
 #[derive(Debug)]
 pub struct SIGPROCFilterbank<'a> {
-    pub data: Array2<f64>,
-    pub endian: Endianness,
+    pub data: Option<Array2<f64>>,
+    pub endian: Option<Endianness>,
     pub filename: Option<&'a str>,
     pub telescope_id: Option<u32>,
     pub telescope: Option<&'a str>,
@@ -108,8 +100,8 @@ pub struct SIGPROCFilterbank<'a> {
 
 #[derive(Debug)]
 pub struct SIGPROCTimeSeries<'a> {
-    pub data: Array1<f64>,
-    pub endian: Endianness,
+    pub data: Option<Array1<f64>>,
+    pub endian: Option<Endianness>,
     pub filename: Option<&'a str>,
     pub telescope_id: Option<u32>,
     pub telescope: Option<&'a str>,
@@ -155,102 +147,102 @@ pub struct SIGPROCTimeSeries<'a> {
 
 impl<'a> SIGPROCFilterbank<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let s = SIGPROCData::from_bytes(i)?;
+        let (data, endian, meta) = parse(i)?;
         Ok(Self {
-            data: s.data,
-            endian: s.endian,
-            filename: s.meta.filename,
-            telescope_id: s.meta.telescope_id,
-            telescope: s.meta.telescope,
-            machine_id: s.meta.machine_id,
-            data_type: s.meta.data_type,
-            rawdatafile: s.meta.rawdatafile,
-            source_name: s.meta.source_name,
-            barycentric: s.meta.barycentric,
-            pulsarcentric: s.meta.pulsarcentric,
-            az_start: s.meta.az_start,
-            za_start: s.meta.za_start,
-            src_raj: s.meta.src_raj,
-            src_dej: s.meta.src_dej,
-            tstart: s.meta.tstart,
-            tsamp: s.meta.tsamp,
-            nbits: s.meta.nbits,
-            nsamples: s.meta.nsamples,
-            fch1: s.meta.fch1,
-            foff: s.meta.foff,
-            fchannel: s.meta.fchannel,
-            nchans: s.meta.nchans,
-            nifs: s.meta.nifs,
-            refdm: s.meta.refdm,
-            flux: s.meta.flux,
-            period: s.meta.period,
-            nbeams: s.meta.nbeams,
-            ibeam: s.meta.ibeam,
-            hdrlen: s.meta.hdrlen,
-            pb: s.meta.pb,
-            ecc: s.meta.ecc,
-            asini: s.meta.asini,
-            orig_hdrlen: s.meta.orig_hdrlen,
-            new_hdrlen: s.meta.new_hdrlen,
-            sampsize: s.meta.sampsize,
-            bandwidth: s.meta.bandwidth,
-            fbottom: s.meta.fbottom,
-            ftop: s.meta.ftop,
-            obs_date: s.meta.obs_date,
-            obs_time: s.meta.obs_time,
-            signed: s.meta.signed,
-            accel: s.meta.accel,
+            data: Some(data),
+            endian: Some(endian),
+            filename: meta.filename,
+            telescope_id: meta.telescope_id,
+            telescope: meta.telescope,
+            machine_id: meta.machine_id,
+            data_type: meta.data_type,
+            rawdatafile: meta.rawdatafile,
+            source_name: meta.source_name,
+            barycentric: meta.barycentric,
+            pulsarcentric: meta.pulsarcentric,
+            az_start: meta.az_start,
+            za_start: meta.za_start,
+            src_raj: meta.src_raj,
+            src_dej: meta.src_dej,
+            tstart: meta.tstart,
+            tsamp: meta.tsamp,
+            nbits: meta.nbits,
+            nsamples: meta.nsamples,
+            fch1: meta.fch1,
+            foff: meta.foff,
+            fchannel: meta.fchannel,
+            nchans: meta.nchans,
+            nifs: meta.nifs,
+            refdm: meta.refdm,
+            flux: meta.flux,
+            period: meta.period,
+            nbeams: meta.nbeams,
+            ibeam: meta.ibeam,
+            hdrlen: meta.hdrlen,
+            pb: meta.pb,
+            ecc: meta.ecc,
+            asini: meta.asini,
+            orig_hdrlen: meta.orig_hdrlen,
+            new_hdrlen: meta.new_hdrlen,
+            sampsize: meta.sampsize,
+            bandwidth: meta.bandwidth,
+            fbottom: meta.fbottom,
+            ftop: meta.ftop,
+            obs_date: meta.obs_date,
+            obs_time: meta.obs_time,
+            signed: meta.signed,
+            accel: meta.accel,
         })
     }
 }
 
 impl<'a> SIGPROCTimeSeries<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let s = SIGPROCData::from_bytes(i)?;
+        let (data, endian, meta) = parse(i)?;
         Ok(Self {
-            data: Array::from_iter(s.data.iter().cloned()),
-            endian: s.endian,
-            filename: s.meta.filename,
-            telescope_id: s.meta.telescope_id,
-            telescope: s.meta.telescope,
-            machine_id: s.meta.machine_id,
-            data_type: s.meta.data_type,
-            rawdatafile: s.meta.rawdatafile,
-            source_name: s.meta.source_name,
-            barycentric: s.meta.barycentric,
-            pulsarcentric: s.meta.pulsarcentric,
-            az_start: s.meta.az_start,
-            za_start: s.meta.za_start,
-            src_raj: s.meta.src_raj,
-            src_dej: s.meta.src_dej,
-            tstart: s.meta.tstart,
-            tsamp: s.meta.tsamp,
-            nbits: s.meta.nbits,
-            nsamples: s.meta.nsamples,
-            fch1: s.meta.fch1,
-            foff: s.meta.foff,
-            fchannel: s.meta.fchannel,
-            nchans: s.meta.nchans,
-            nifs: s.meta.nifs,
-            refdm: s.meta.refdm,
-            flux: s.meta.flux,
-            period: s.meta.period,
-            nbeams: s.meta.nbeams,
-            ibeam: s.meta.ibeam,
-            hdrlen: s.meta.hdrlen,
-            pb: s.meta.pb,
-            ecc: s.meta.ecc,
-            asini: s.meta.asini,
-            orig_hdrlen: s.meta.orig_hdrlen,
-            new_hdrlen: s.meta.new_hdrlen,
-            sampsize: s.meta.sampsize,
-            bandwidth: s.meta.bandwidth,
-            fbottom: s.meta.fbottom,
-            ftop: s.meta.ftop,
-            obs_date: s.meta.obs_date,
-            obs_time: s.meta.obs_time,
-            signed: s.meta.signed,
-            accel: s.meta.accel,
+            data: Some(Array::from_iter(data.iter().cloned())),
+            endian: Some(endian),
+            filename: meta.filename,
+            telescope_id: meta.telescope_id,
+            telescope: meta.telescope,
+            machine_id: meta.machine_id,
+            data_type: meta.data_type,
+            rawdatafile: meta.rawdatafile,
+            source_name: meta.source_name,
+            barycentric: meta.barycentric,
+            pulsarcentric: meta.pulsarcentric,
+            az_start: meta.az_start,
+            za_start: meta.za_start,
+            src_raj: meta.src_raj,
+            src_dej: meta.src_dej,
+            tstart: meta.tstart,
+            tsamp: meta.tsamp,
+            nbits: meta.nbits,
+            nsamples: meta.nsamples,
+            fch1: meta.fch1,
+            foff: meta.foff,
+            fchannel: meta.fchannel,
+            nchans: meta.nchans,
+            nifs: meta.nifs,
+            refdm: meta.refdm,
+            flux: meta.flux,
+            period: meta.period,
+            nbeams: meta.nbeams,
+            ibeam: meta.ibeam,
+            hdrlen: meta.hdrlen,
+            pb: meta.pb,
+            ecc: meta.ecc,
+            asini: meta.asini,
+            orig_hdrlen: meta.orig_hdrlen,
+            new_hdrlen: meta.new_hdrlen,
+            sampsize: meta.sampsize,
+            bandwidth: meta.bandwidth,
+            fbottom: meta.fbottom,
+            ftop: meta.ftop,
+            obs_date: meta.obs_date,
+            obs_time: meta.obs_time,
+            signed: meta.signed,
+            accel: meta.accel,
         })
     }
 }

@@ -7,6 +7,7 @@ use nom::{
     IResult,
 };
 
+use ndarray::{Array, Array1, Array3};
 use std::cmp::Ordering;
 
 use crate::err::PriwoError;
@@ -72,7 +73,7 @@ enum Field<'a> {
     OrbWd(f64),
 }
 
-fn parse(i: &[u8]) -> ParseResult<'_, Vec<Field<'_>>> {
+fn parse(i: &[u8]) -> ParseResult<'_, (Endianness, Vec<Field<'_>>)> {
     let (i, dummy) = peek(count(u32(Endianness::Little), 5))(i)?;
     let endian = match dummy.iter().max().unwrap().cmp(&10000) {
         Ordering::Greater => Endianness::Big,
@@ -128,54 +129,57 @@ fn parse(i: &[u8]) -> ParseResult<'_, Vec<Field<'_>>> {
 
     Ok((
         i,
-        vec![
-            Field::Ndms(ndms),
-            Field::Nperiods(nperiods),
-            Field::Npdots(npdots),
-            Field::Nsub(nsub),
-            Field::Npart(npart),
-            Field::Nbin(nbin),
-            Field::Nchan(nchan),
-            Field::Pstep(pstep),
-            Field::Pdstep(pdstep),
-            Field::Dmstep(dmstep),
-            Field::Ndmfact(ndmfact),
-            Field::Npfact(npfact),
-            Field::Filename(filename),
-            Field::Candname(candname),
-            Field::Telescope(telescope),
-            Field::Pgdev(pgdev),
-            Field::Ra(ra),
-            Field::Dec(dec),
-            Field::Dt(dt),
-            Field::T0(t0),
-            Field::Tn(tn),
-            Field::Tepoch(tepoch),
-            Field::Bepoch(bepoch),
-            Field::Vavg(vavg),
-            Field::F0(f0),
-            Field::Df(df),
-            Field::Bestdm(bestdm),
-            Field::TopoPower(topo_power),
-            Field::TopoP(topo_p),
-            Field::TopoPd(topo_pd),
-            Field::TopoPdd(topo_pdd),
-            Field::BaryPower(bary_power),
-            Field::BaryP(bary_p),
-            Field::BaryPd(bary_pd),
-            Field::BaryPdd(bary_pdd),
-            Field::FoldPower(fold_power),
-            Field::FoldP(fold_p),
-            Field::FoldPd(fold_pd),
-            Field::FoldPdd(fold_pdd),
-            Field::OrbP(orb_p),
-            Field::OrbE(orb_e),
-            Field::OrbX(orb_x),
-            Field::OrbW(orb_w),
-            Field::OrbT(orb_t),
-            Field::OrbPd(orb_pd),
-            Field::OrbWd(orb_wd),
-        ],
+        (
+            endian,
+            vec![
+                Field::Ndms(ndms),
+                Field::Nperiods(nperiods),
+                Field::Npdots(npdots),
+                Field::Nsub(nsub),
+                Field::Npart(npart),
+                Field::Nbin(nbin),
+                Field::Nchan(nchan),
+                Field::Pstep(pstep),
+                Field::Pdstep(pdstep),
+                Field::Dmstep(dmstep),
+                Field::Ndmfact(ndmfact),
+                Field::Npfact(npfact),
+                Field::Filename(filename),
+                Field::Candname(candname),
+                Field::Telescope(telescope),
+                Field::Pgdev(pgdev),
+                Field::Ra(ra),
+                Field::Dec(dec),
+                Field::Dt(dt),
+                Field::T0(t0),
+                Field::Tn(tn),
+                Field::Tepoch(tepoch),
+                Field::Bepoch(bepoch),
+                Field::Vavg(vavg),
+                Field::F0(f0),
+                Field::Df(df),
+                Field::Bestdm(bestdm),
+                Field::TopoPower(topo_power),
+                Field::TopoP(topo_p),
+                Field::TopoPd(topo_pd),
+                Field::TopoPdd(topo_pdd),
+                Field::BaryPower(bary_power),
+                Field::BaryP(bary_p),
+                Field::BaryPd(bary_pd),
+                Field::BaryPdd(bary_pdd),
+                Field::FoldPower(fold_power),
+                Field::FoldP(fold_p),
+                Field::FoldPd(fold_pd),
+                Field::FoldPdd(fold_pdd),
+                Field::OrbP(orb_p),
+                Field::OrbE(orb_e),
+                Field::OrbX(orb_x),
+                Field::OrbW(orb_w),
+                Field::OrbT(orb_t),
+                Field::OrbPd(orb_pd),
+                Field::OrbWd(orb_wd),
+            ],
+        ),
     ))
 }
 
@@ -227,11 +231,17 @@ pub struct PRESTOFoldedData<'a> {
     pub orb_t: Option<f64>,
     pub orb_pd: Option<f64>,
     pub orb_wd: Option<f64>,
+    pub dms: Option<Array1<f64>>,
+    pub periods: Option<Array1<f64>>,
+    pub pdots: Option<Array1<f64>>,
+    pub data: Option<Array3<f64>>,
+    pub stats: Option<Array3<f64>>,
+    pub endian: Option<Endianness>,
 }
 
 impl<'a> PRESTOFoldedData<'a> {
-    pub fn from_bytes(i: &'a [u8]) -> Result<(&'a [u8], Self), PriwoError> {
-        let (i, fields) = parse(i).map_err(|e| match e {
+    pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
+        let (i, (endian, fields)) = parse(i).map_err(|e| match e {
             nom::Err::Incomplete(_) => PriwoError::IncompleteMetadata,
             nom::Err::Error(e) => e,
             nom::Err::Failure(e) => e,
@@ -284,6 +294,12 @@ impl<'a> PRESTOFoldedData<'a> {
             orb_t: None,
             orb_pd: None,
             orb_wd: None,
+            dms: None,
+            periods: None,
+            pdots: None,
+            data: None,
+            stats: None,
+            endian: None,
         };
 
         for field in fields {
@@ -337,6 +353,95 @@ impl<'a> PRESTOFoldedData<'a> {
             }
         }
 
-        Ok((i, s))
+        let nbin = s.nbin.unwrap() as usize;
+        let nsub = s.nsub.unwrap() as usize;
+        let ndms = s.ndms.unwrap() as usize;
+        let npart = s.npart.unwrap() as usize;
+        let npdots = s.npdots.unwrap() as usize;
+        let nperiods = s.nperiods.unwrap() as usize;
+
+        let (dms, i) = i.split_at(ndms * 8);
+        let (periods, i) = i.split_at(nperiods * 8);
+        let (pdots, i) = i.split_at(npdots * 8);
+        let (data, i) = i.split_at(npart * nsub * nbin * 8);
+
+        s.dms = Some(Array::from_vec(
+            dms.to_vec()
+                .chunks_exact(8)
+                .map(|x| {
+                    (match endian {
+                        Endianness::Big => f64::from_be_bytes,
+                        Endianness::Little => f64::from_le_bytes,
+                        _ => unreachable!(),
+                    })(x.try_into().unwrap())
+                })
+                .collect(),
+        ));
+
+        s.periods = Some(Array::from_vec(
+            periods
+                .to_vec()
+                .chunks_exact(8)
+                .map(|x| {
+                    (match endian {
+                        Endianness::Big => f64::from_be_bytes,
+                        Endianness::Little => f64::from_le_bytes,
+                        _ => unreachable!(),
+                    })(x.try_into().unwrap())
+                })
+                .collect(),
+        ));
+
+        s.pdots = Some(Array::from_vec(
+            pdots
+                .to_vec()
+                .chunks_exact(8)
+                .map(|x| {
+                    (match endian {
+                        Endianness::Big => f64::from_be_bytes,
+                        Endianness::Little => f64::from_le_bytes,
+                        _ => unreachable!(),
+                    })(x.try_into().unwrap())
+                })
+                .collect(),
+        ));
+
+        s.data = Some(
+            Array::from_shape_vec(
+                (npart, nsub, nbin),
+                data.to_vec()
+                    .chunks_exact(8)
+                    .map(|x| {
+                        (match endian {
+                            Endianness::Big => f64::from_be_bytes,
+                            Endianness::Little => f64::from_le_bytes,
+                            _ => unreachable!(),
+                        })(x.try_into().unwrap())
+                    })
+                    .collect(),
+            )
+            .unwrap()
+            .mapv(|x| x),
+        );
+
+        s.stats = Some(
+            Array::from_shape_vec(
+                (7, nsub, npart),
+                i.to_vec()
+                    .chunks_exact(8)
+                    .map(|x| {
+                        (match endian {
+                            Endianness::Big => f64::from_be_bytes,
+                            Endianness::Little => f64::from_le_bytes,
+                            _ => unreachable!(),
+                        })(x.try_into().unwrap())
+                    })
+                    .collect(),
+            )
+            .unwrap()
+            .mapv(|x| x),
+        );
+
+        Ok(s)
     }
 }

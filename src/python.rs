@@ -1,6 +1,6 @@
 use crate::presto::PRESTOFoldedData;
 use crate::sigproc::{SIGPROCFilterbank, SIGPROCMetadata, SIGPROCTimeSeries};
-use numpy::{IntoPyArray, PyArray1, PyArray2};
+use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
@@ -60,7 +60,7 @@ fn _parsefil<'py>(py: Python<'py>, i: &'py [u8]) -> PyResult<(&'py PyDict, &'py 
     let fil = SIGPROCFilterbank::from_bytes(i).unwrap();
 
     let data = fil.data;
-    let data = data.into_pyarray(py);
+    let data = data.unwrap().into_pyarray(py);
 
     dict.set_item("filename", fil.filename.into_py(py))?;
     dict.set_item("telescope_id", fil.telescope_id.into_py(py))?;
@@ -113,7 +113,7 @@ fn _parsetim<'py>(py: Python<'py>, i: &'py [u8]) -> PyResult<(&'py PyDict, &'py 
     let tim = SIGPROCTimeSeries::from_bytes(i).unwrap();
 
     let data = tim.data;
-    let data = data.into_pyarray(py);
+    let data = data.unwrap().into_pyarray(py);
 
     dict.set_item("filename", tim.filename.into_py(py))?;
     dict.set_item("telescope_id", tim.telescope_id.into_py(py))?;
@@ -161,9 +161,12 @@ fn _parsetim<'py>(py: Python<'py>, i: &'py [u8]) -> PyResult<(&'py PyDict, &'py 
 }
 
 #[pyfunction]
-fn _parsepfd<'py>(py: Python<'py>, i: &[u8]) -> PyResult<&'py PyDict> {
+fn _parsepfd<'py>(py: Python<'py>, i: &[u8]) -> PyResult<(&'py PyDict, &'py PyArray3<f64>)> {
     let dict = PyDict::new(py);
-    let (_, pfd) = PRESTOFoldedData::from_bytes(i).unwrap();
+    let pfd = PRESTOFoldedData::from_bytes(i).unwrap();
+
+    let data = pfd.data;
+    let data = data.unwrap().into_pyarray(py);
 
     dict.set_item("ndms", pfd.ndms.into_py(py))?;
     dict.set_item("nperiods", pfd.nperiods.into_py(py))?;
@@ -211,8 +214,12 @@ fn _parsepfd<'py>(py: Python<'py>, i: &[u8]) -> PyResult<&'py PyDict> {
     dict.set_item("orb_t", pfd.orb_t.into_py(py))?;
     dict.set_item("orb_pd", pfd.orb_pd.into_py(py))?;
     dict.set_item("orb_wd", pfd.orb_wd.into_py(py))?;
+    dict.set_item("dms", pfd.dms.unwrap().into_pyarray(py))?;
+    dict.set_item("periods", pfd.periods.unwrap().into_pyarray(py))?;
+    dict.set_item("pdots", pfd.pdots.unwrap().into_pyarray(py))?;
+    dict.set_item("stats", pfd.stats.unwrap().into_pyarray(py))?;
 
-    Ok(dict)
+    Ok((dict, data))
 }
 
 #[pymodule]

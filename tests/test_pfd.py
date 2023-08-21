@@ -1,5 +1,3 @@
-import numpy as np
-
 from ward import test
 from ward import fixture
 from pathlib import Path
@@ -12,7 +10,15 @@ def data():
 
 
 def check(f):
-    meta = readpfd(f)
+    meta, _ = readpfd(f)
+
+    for _ in [
+        "dms",
+        "pdots",
+        "stats",
+        "periods",
+    ]:
+        meta.pop(_)
 
     assert meta == dict(
         ndms=257,
