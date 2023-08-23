@@ -7,7 +7,7 @@ use pyo3::types::PyDict;
 #[pyfunction]
 fn _parsehdr<'py>(py: Python<'py>, i: &[u8]) -> PyResult<&'py PyDict> {
     let dict = PyDict::new(py);
-    let (_, _, hdr) = SIGPROCMetadata::from_bytes(i).unwrap();
+    let (_, hdr) = SIGPROCMetadata::from_bytes(i).unwrap();
 
     dict.set_item("filename", hdr.filename.into_py(py))?;
     dict.set_item("telescope_id", hdr.telescope_id.into_py(py))?;
@@ -50,6 +50,10 @@ fn _parsehdr<'py>(py: Python<'py>, i: &[u8]) -> PyResult<&'py PyDict> {
     dict.set_item("obs_time", hdr.obs_time.into_py(py))?;
     dict.set_item("signed", hdr.signed.into_py(py))?;
     dict.set_item("accel", hdr.accel.into_py(py))?;
+    dict.set_item(
+        "endian",
+        format!("{:#?}", hdr.endian.unwrap()).to_lowercase(),
+    )?;
 
     Ok(dict)
 }
@@ -103,6 +107,10 @@ fn _parsefil<'py>(py: Python<'py>, i: &'py [u8]) -> PyResult<(&'py PyDict, &'py 
     dict.set_item("obs_time", fil.obs_time.into_py(py))?;
     dict.set_item("signed", fil.signed.into_py(py))?;
     dict.set_item("accel", fil.accel.into_py(py))?;
+    dict.set_item(
+        "endian",
+        format!("{:#?}", fil.endian.unwrap()).to_lowercase(),
+    )?;
 
     Ok((dict, data))
 }
@@ -156,6 +164,10 @@ fn _parsetim<'py>(py: Python<'py>, i: &'py [u8]) -> PyResult<(&'py PyDict, &'py 
     dict.set_item("obs_time", tim.obs_time.into_py(py))?;
     dict.set_item("signed", tim.signed.into_py(py))?;
     dict.set_item("accel", tim.accel.into_py(py))?;
+    dict.set_item(
+        "endian",
+        format!("{:#?}", tim.endian.unwrap()).to_lowercase(),
+    )?;
 
     Ok((dict, data))
 }
@@ -218,6 +230,10 @@ fn _parsepfd<'py>(py: Python<'py>, i: &[u8]) -> PyResult<(&'py PyDict, &'py PyAr
     dict.set_item("periods", pfd.periods.unwrap().into_pyarray(py))?;
     dict.set_item("pdots", pfd.pdots.unwrap().into_pyarray(py))?;
     dict.set_item("stats", pfd.stats.unwrap().into_pyarray(py))?;
+    dict.set_item(
+        "endian",
+        format!("{:#?}", pfd.endian.unwrap()).to_lowercase(),
+    )?;
 
     Ok((dict, data))
 }

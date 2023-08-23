@@ -353,6 +353,8 @@ impl<'a> PRESTOFoldedData<'a> {
             }
         }
 
+        s.endian = Some(endian);
+
         let nbin = s.nbin.unwrap() as usize;
         let nsub = s.nsub.unwrap() as usize;
         let ndms = s.ndms.unwrap() as usize;

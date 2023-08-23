@@ -3,8 +3,8 @@ use crate::err::PriwoError;
 use ndarray::{Array, Array1, Array2};
 use nom::number::Endianness;
 
-fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, Endianness, SIGPROCMetadata<'_>), PriwoError> {
-    let (raw, endian, meta) = SIGPROCMetadata::from_bytes(i)?;
+fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, SIGPROCMetadata<'_>), PriwoError> {
+    let (raw, meta) = SIGPROCMetadata::from_bytes(i)?;
 
     let signed = meta.signed;
     let nbits = meta.nbits.unwrap();
@@ -18,7 +18,7 @@ fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, Endianness, SIGPROCMetadata<'_>), 
                 shape,
                 raw.chunks_exact(nbits as usize / 8usize)
                     .map(|x| {
-                        (match endian {
+                        (match meta.endian.unwrap() {
                             Endianness::Big => $ty::from_be_bytes,
                             Endianness::Little => $ty::from_le_bytes,
                             _ => unreachable!(),
@@ -48,7 +48,7 @@ fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, Endianness, SIGPROCMetadata<'_>), 
         _ => unreachable!(),
     };
 
-    Ok((data, endian, meta))
+    Ok((data, meta))
 }
 
 #[derive(Debug)]
@@ -147,10 +147,10 @@ pub struct SIGPROCTimeSeries<'a> {
 
 impl<'a> SIGPROCFilterbank<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let (data, endian, meta) = parse(i)?;
+        let (data, meta) = parse(i)?;
         Ok(Self {
             data: Some(data),
-            endian: Some(endian),
+            endian: meta.endian,
             filename: meta.filename,
             telescope_id: meta.telescope_id,
             telescope: meta.telescope,
@@ -198,10 +198,10 @@ impl<'a> SIGPROCFilterbank<'a> {
 
 impl<'a> SIGPROCTimeSeries<'a> {
     pub fn from_bytes(i: &'a [u8]) -> Result<Self, PriwoError> {
-        let (data, endian, meta) = parse(i)?;
+        let (data, meta) = parse(i)?;
         Ok(Self {
             data: Some(Array::from_iter(data.iter().cloned())),
-            endian: Some(endian),
+            endian: meta.endian,
             filename: meta.filename,
             telescope_id: meta.telescope_id,
             telescope: meta.telescope,

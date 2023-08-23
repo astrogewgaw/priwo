@@ -191,6 +191,7 @@ pub struct SIGPROCMetadata<'a> {
     pub obs_time: Option<&'a str>,
     pub signed: Option<bool>,
     pub accel: Option<f64>,
+    pub endian: Option<Endianness>,
 }
 
 fn header<'a>(i: &'a [u8]) -> ParseResult<'a, (Endianness, Vec<Field<'a>>)> {
@@ -261,8 +262,8 @@ fn header<'a>(i: &'a [u8]) -> ParseResult<'a, (Endianness, Vec<Field<'a>>)> {
 }
 
 impl<'a> SIGPROCMetadata<'a> {
-    pub fn from_bytes(i: &'a [u8]) -> Result<(&'a [u8], Endianness, Self), PriwoError> {
-        let (i, (e, headers)) = header(i).map_err(|e| match e {
+    pub fn from_bytes(i: &'a [u8]) -> Result<(&'a [u8], Self), PriwoError> {
+        let (i, (endian, headers)) = header(i).map_err(|e| match e {
             nom::Err::Incomplete(_) => PriwoError::IncompleteMetadata,
             nom::Err::Error(e) => e,
             nom::Err::Failure(e) => e,
@@ -310,6 +311,7 @@ impl<'a> SIGPROCMetadata<'a> {
             obs_time: None,
             signed: None,
             accel: None,
+            endian: None,
         };
 
         for header in headers {
@@ -358,6 +360,8 @@ impl<'a> SIGPROCMetadata<'a> {
             }
         }
 
+        s.endian = Some(endian);
+
         if s.nbits.is_none()
             && s.nifs.is_none()
             && s.nchans.is_none()
@@ -383,6 +387,6 @@ impl<'a> SIGPROCMetadata<'a> {
         let nsamp = (i.len() as u32 * 8) / nbits / nchans / nifs;
         s.nsamples = Some(nsamp);
 
-        Ok((i, e, s))
+        Ok((i, s))
     }
 }
