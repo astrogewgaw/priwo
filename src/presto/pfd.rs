@@ -183,7 +183,7 @@ fn parse(i: &[u8]) -> ParseResult<'_, (Endianness, Vec<Field<'_>>)> {
     ))
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct PRESTOFoldedData<'a> {
     pub ndms: Option<u32>,
     pub nperiods: Option<u32>,
@@ -247,60 +247,7 @@ impl<'a> PRESTOFoldedData<'a> {
             nom::Err::Failure(e) => e,
         })?;
 
-        let mut s = Self {
-            ndms: None,
-            nperiods: None,
-            npdots: None,
-            nsub: None,
-            npart: None,
-            nbin: None,
-            nchan: None,
-            pstep: None,
-            pdstep: None,
-            dmstep: None,
-            ndmfact: None,
-            npfact: None,
-            filename: None,
-            candname: None,
-            telescope: None,
-            pgdev: None,
-            ra: None,
-            dec: None,
-            dt: None,
-            t0: None,
-            tn: None,
-            tepoch: None,
-            bepoch: None,
-            vavg: None,
-            f0: None,
-            df: None,
-            bestdm: None,
-            topo_power: None,
-            topo_p: None,
-            topo_pd: None,
-            topo_pdd: None,
-            bary_power: None,
-            bary_p: None,
-            bary_pd: None,
-            bary_pdd: None,
-            fold_power: None,
-            fold_p: None,
-            fold_pd: None,
-            fold_pdd: None,
-            orb_p: None,
-            orb_e: None,
-            orb_x: None,
-            orb_w: None,
-            orb_t: None,
-            orb_pd: None,
-            orb_wd: None,
-            dms: None,
-            periods: None,
-            pdots: None,
-            data: None,
-            stats: None,
-            endian: None,
-        };
+        let mut s = Self::default();
 
         for field in fields {
             match field {
@@ -422,8 +369,7 @@ impl<'a> PRESTOFoldedData<'a> {
                     })
                     .collect(),
             )
-            .unwrap()
-            .mapv(|x| x),
+            .unwrap(),
         );
 
         s.stats = Some(
@@ -440,8 +386,7 @@ impl<'a> PRESTOFoldedData<'a> {
                     })
                     .collect(),
             )
-            .unwrap()
-            .mapv(|x| x),
+            .unwrap(),
         );
 
         Ok(s)

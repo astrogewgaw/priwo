@@ -148,7 +148,7 @@ enum Field<'a> {
     Accel(f64),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SIGPROCMetadata<'a> {
     pub filename: Option<&'a str>,
     pub telescope_id: Option<u32>,
@@ -269,50 +269,7 @@ impl<'a> SIGPROCMetadata<'a> {
             nom::Err::Failure(e) => e,
         })?;
 
-        let mut s = Self {
-            filename: None,
-            telescope_id: None,
-            telescope: None,
-            machine_id: None,
-            data_type: None,
-            rawdatafile: None,
-            source_name: None,
-            barycentric: None,
-            pulsarcentric: None,
-            az_start: None,
-            za_start: None,
-            src_raj: None,
-            src_dej: None,
-            tstart: None,
-            tsamp: None,
-            nbits: None,
-            nsamples: None,
-            fch1: None,
-            foff: None,
-            fchannel: None,
-            nchans: None,
-            nifs: None,
-            refdm: None,
-            flux: None,
-            period: None,
-            nbeams: None,
-            ibeam: None,
-            hdrlen: None,
-            pb: None,
-            ecc: None,
-            asini: None,
-            orig_hdrlen: None,
-            new_hdrlen: None,
-            sampsize: None,
-            bandwidth: None,
-            fbottom: None,
-            ftop: None,
-            obs_date: None,
-            obs_time: None,
-            signed: None,
-            accel: None,
-            endian: None,
-        };
+        let mut s = Self::default();
 
         for header in headers {
             match header {

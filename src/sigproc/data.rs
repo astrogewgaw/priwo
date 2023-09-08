@@ -27,8 +27,8 @@ fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, SIGPROCMetadata<'_>), PriwoError> 
                     .collect(),
             )
             .unwrap()
-            .mapv(|x| x as f64)
             .reversed_axes()
+            .mapv(|x| x as f64)
         };
     }
 
@@ -51,7 +51,7 @@ fn parse(i: &'_ [u8]) -> Result<(Array2<f64>, SIGPROCMetadata<'_>), PriwoError> 
     Ok((data, meta))
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SIGPROCFilterbank<'a> {
     pub data: Option<Array2<f64>>,
     pub endian: Option<Endianness>,
@@ -98,7 +98,7 @@ pub struct SIGPROCFilterbank<'a> {
     pub accel: Option<f64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SIGPROCTimeSeries<'a> {
     pub data: Option<Array1<f64>>,
     pub endian: Option<Endianness>,
