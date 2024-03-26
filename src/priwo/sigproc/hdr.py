@@ -56,6 +56,18 @@ HDRKEYS = {
 # fmt: on
 
 
+def float2coord(x: float):
+    dd = int(x / 1e4)
+    mm = int((x - dd * 1e4) / 1e2)
+    ss = x - dd * 1e4 - mm * 1e2
+    return ":".join(map(str, [dd, mm, ss]))
+
+
+def coord2float(x: str):
+    dd, mm, ss = list(map(float, x.split(":")))
+    return dd * 1e4 + mm * 1e2 + ss
+
+
 def readhdr(f):
     """
     Read in a SIGPROC header.
@@ -70,6 +82,12 @@ def readhdr(f):
                 break
             meta[key] = HDRKEYS[key].parse(fp)
         meta["size"] = fp.tell()
+    ra = meta.get("src_raj", None)
+    dec = meta.get("src_dej", None)
+    if ra is not None:
+        meta["src_raj"] = float2coord(ra)
+    if dec is not None:
+        meta["src_dej"] = float2coord(dec)
     return meta
 
 
@@ -83,5 +101,6 @@ def writehdr(meta, f):
         for key, val in meta.items():
             if key != "size":
                 pb.PascalString(pb.Int(4), "utf8").build(key, fp)
+                val = coord2float(val) if key in ["src_raj", "src_dej"] else val
                 HDRKEYS[key].build(val, fp)
         END.build(fp)
