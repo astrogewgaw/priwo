@@ -82,8 +82,12 @@ def readhdr(f):
                 break
             meta[key] = HDRKEYS[key].parse(fp)
         meta["size"] = fp.tell()
-    meta["src_raj"] = float2coord(meta["src_raj"])
-    meta["src_dej"] = float2coord(meta["src_dej"])
+    ra = meta.get("src_raj", None)
+    dec = meta.get("src_dej", None)
+    if ra is not None:
+        meta["src_raj"] = float2coord(ra)
+    if dec is not None:
+        meta["src_dej"] = float2coord(dec)
     return meta
 
 
