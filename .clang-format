@@ -1,0 +1,5 @@
+---
+Language: Cpp
+AllowShortLoopsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: true

@@ -1,4 +1,0 @@
-graft src
-include *.md
-include LICENSE
-include setup.cfg

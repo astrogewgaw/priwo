@@ -1,38 +1,36 @@
 [build-system]
-requires = [
-    "wheel",
-    "setuptools>=45",
-    "setuptools_scm[toml]>=6.0",
+requires = ["scikit-build-core >=0.4.3", "nanobind >=1.3.2"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "priwo"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+description = "I/O for common pulsar/FRB data formats."
+authors = [{ name = "Ujjwal Panda", email = "ujjwapanda97@gmail.com" }]
+
+classifiers = [
+  "Operating System :: Unix",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering :: Astronomy",
 ]
 
-[tool.setuptools_scm]
-write_to = "src/priwo/_version.py"
+[project.urls]
+Source = "https://github.com/astrogewgaw/priwo"
+Homepage = "https://github.com/astrogewgaw/priwo"
+Issues = "https://github.com/astrogewgaw/priwo/issues"
+Documentation = "https://priwo.readthedocs.io/en/latest"
 
-[tool.interrogate]
-verbose = 0
-color = true
-quiet = false
-fail-under = 85
-badge-format = "svg"
-whitelist-regex = []
-ignore-magic = false
-ignore-module = false
-ignore-private = false
-ignore-setters = false
-ignore-init-method = true
-omit-covered-files = false
-ignore-init-module = false
-ignore-semiprivate = false
-ignore-nested-classes = true
-badge-style = "for-the-badge"
-ignore-nested-functions = false
-ignore-property-decorators = false
-generate-badge = "assets/docs_cov.svg"
-exclude = [
-    "docs",
-    "tests",
-    "build",
-    "assets",
-    "setup.py",
-    "src/priwo/_version.py",
-]
+[tool.scikit-build]
+wheel.py-api = "cp312"          # Build stable ABI wheels for CPython 3.12+
+minimum-version = "0.4"         # Protect the configuration against future changes in scikit-build-core
+build-dir = "build/{wheel_tag}" # Setuptools-style build caching in a local directory

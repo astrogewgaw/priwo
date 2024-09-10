@@ -1,4 +1,5 @@
-pkg := "priwo"
+pkg  := "priwo"
+desc := "I/O for common pulsar/FRB ddata formats."
 
 alias l := loc
 alias t := test
@@ -16,7 +17,7 @@ default:
     from rich.console import Console
 
     console = Console()
-    
+
     grid = Table.grid(expand=True, padding=(0, 2, 0, 2))
     grid.add_column(justify="left", style="bold")
     grid.add_column(justify="right", style="italic")
@@ -33,7 +34,7 @@ default:
             grid,
             padding=2,
             expand=False,
-            title="[b]{{pkg}}[/b]: [i]I/O for common pulsar data formats.[/i]",
+            title="[b]{{pkg}}[/b]: [i]{{desc}}[/i]",
         )
     )
 
@@ -47,7 +48,6 @@ default:
     echo "Cleaning..."
     rm -rf tmp
     rm -rf dist
-    rm -rf build
     rm -rf .eggs
     rm -rf .coverage
     rm -rf .mypy_cache
