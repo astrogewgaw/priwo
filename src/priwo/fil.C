@@ -1,0 +1,54 @@
+#include "fil.h"
+#include "hdr.h"
+
+using namespace nanobind::literals;
+
+std::tuple<nb::dict, nb::ndarray<nb::numpy, nb::ndim<2>>>
+readfil(std::string fn) {
+  nb::dict meta = readhdr(fn);
+  int nf = nb::cast<int>(meta["nchans"]);
+  int nbits = nb::cast<int>(meta["nbits"]);
+  int nskip = nb::cast<int>(meta["hdrlen"]);
+
+  const char *dtype;
+  switch (nbits) {
+  case 1:
+    dtype = "uint8";
+    break;
+  case 2:
+    dtype = "uint8";
+    break;
+  case 4:
+    dtype = "uint8";
+    break;
+  case 8:
+    dtype = "uint8";
+    break;
+  case 16:
+    dtype = "uint16";
+    break;
+  case 32:
+    dtype = "float32";
+    break;
+  }
+
+  nb::object np = nb::module_::import_("numpy");
+  nb::ndarray<nb::numpy, nb::ndim<2>> data =
+      nb::cast<nb::ndarray<nb::numpy, nb::ndim<2>>>(np.attr("transpose")(
+          np.attr("reshape")(np.attr("fromfile")(fn, "dtype"_a = np.attr(dtype),
+                                                 "offset"_a = nskip),
+                             "newshape"_a = nb::make_tuple(-1, nf))));
+  return std::make_tuple(meta, data);
+}
+
+void writefil(nb::dict meta, nb::ndarray<nb::numpy, float, nb::ndim<2>> data,
+              std::string fn) {
+  writehdr(meta, fn);
+  nb::object np = nb::module_::import_("numpy");
+  np.attr("asarray")(data).attr("T").attr("tofile")(fn);
+}
+
+void init_fil(nb::module_ m) {
+  m.def("readfil", &readfil);
+  m.def("writefil", &writefil);
+}

@@ -1,32 +1,54 @@
-#include <cstddef>
-#include <cstring>
-
-#include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h>
-#include <nanobind/stl/string.h>
-
-#include "common.h"
-#include "priwo.h"
-
-namespace nb = nanobind;
+#include "pfd.h"
 
 nb::dict readpfd(std::string fn) {
   nb::dict pfd;
-  nb::dict orb;
-  nb::dict topo;
-  nb::dict bary;
-  nb::dict fold;
-  nb::dict stats;
 
   char temp[16];
   int tmp, byteswap = 0;
   FILE *f = chkfopen(fn.c_str(), "rb");
 
-  int numdms = parseint(f, byteswap);
-  int numperiods = parseint(f, byteswap);
-  int numpdots = parseint(f, byteswap);
-  int nsub = parseint(f, byteswap);
-  int npart = parseint(f, byteswap);
+  int numdms;        /* Number of 'dms' */
+  int numperiods;    /* Number of 'periods' */
+  int numpdots;      /* Number of 'pdots' */
+  int nsub;          /* Number of frequency subbands folded */
+  int npart;         /* Number of folds in time over integration */
+  int proflen;       /* Number of bins per profile */
+  int numchan;       /* Number of channels for radio data */
+  int pstep;         /* Minimum period stepsize in profile phase bins */
+  int pdstep;        /* Minimum p-dot stepsize in profile phase bins */
+  int dmstep;        /* Minimum DM stepsize in profile phase bins */
+  int ndmfact;       /* 2*ndmfact*proflen+1 DMs to search */
+  int npfact;        /* 2*npfact*proflen+1 periods and p-dots to search */
+  char *filenm;      /* Filename of the folded data */
+  char *candnm;      /* String describing the candidate */
+  char *telescope;   /* Telescope where observation took place */
+  char *pgdev;       /* PGPLOT device to use */
+  char rastr[16];    /* J2000 RA  string in format hh:mm:ss.ssss */
+  char decstr[16];   /* J2000 DEC string in format dd:mm:ss.ssss */
+  double dt;         /* Sampling interval of the data */
+  double startT;     /* Fraction of observation file to start folding */
+  double endT;       /* Fraction of observation file to stop folding */
+  double tepoch;     /* Topocentric eopch of data in MJD */
+  double bepoch;     /* Barycentric eopch of data in MJD */
+  double avgvoverc;  /* Average topocentric velocity */
+  double lofreq;     /* Center of low frequency radio channel */
+  double chan_wid;   /* Width of each radio channel in MHz */
+  double bestdm;     /* Best DM */
+  nb::dict topo;     /* Best topocentric p, pd, and pdd */
+  nb::dict bary;     /* Best barycentric p, pd, and pdd */
+  nb::dict fold;     /* f, fd, and fdd used to fold the initial data */
+  nb::dict orb;      /* Barycentric orbital parameters used in folds */
+  double *dms;       /* DMs used in the trials */
+  double *periods;   /* Periods used in the trials */
+  double *pdots;     /* P-dots used in the trials */
+  double *rawfolds;  /* Raw folds (nsub * npart * proflen points) */
+  double *foldstats; /* Statistics for the raw folds */
+
+  numdms = parseint(f, byteswap);
+  numperiods = parseint(f, byteswap);
+  numpdots = parseint(f, byteswap);
+  nsub = parseint(f, byteswap);
+  npart = parseint(f, byteswap);
 
   if (npart < 1 || npart > 10000) {
     byteswap = 1;
@@ -38,33 +60,30 @@ nb::dict readpfd(std::string fn) {
     numperiods = swapint(numperiods);
   }
 
-  int proflen = parseint(f, byteswap);
-  int numchan = parseint(f, byteswap);
-  int pstep = parseint(f, byteswap);
-  int pdstep = parseint(f, byteswap);
-  int dmstep = parseint(f, byteswap);
-  int ndmfact = parseint(f, byteswap);
-  int npfact = parseint(f, byteswap);
+  proflen = parseint(f, byteswap);
+  numchan = parseint(f, byteswap);
+  pstep = parseint(f, byteswap);
+  pdstep = parseint(f, byteswap);
+  dmstep = parseint(f, byteswap);
+  ndmfact = parseint(f, byteswap);
+  npfact = parseint(f, byteswap);
 
   tmp = parseint(f, byteswap);
-  char *filenm = (char *)calloc(tmp + 1, sizeof(char));
+  filenm = (char *)calloc(tmp + 1, sizeof(char));
   chkfread(filenm, sizeof(char), tmp, f);
 
   tmp = parseint(f, byteswap);
-  char *candnm = (char *)calloc(tmp + 1, sizeof(char));
+  candnm = (char *)calloc(tmp + 1, sizeof(char));
   chkfread(candnm, sizeof(char), tmp, f);
 
   tmp = parseint(f, byteswap);
-  char *telescope = (char *)calloc(tmp + 1, sizeof(char));
+  telescope = (char *)calloc(tmp + 1, sizeof(char));
   chkfread(telescope, sizeof(char), tmp, f);
 
   tmp = parseint(f, byteswap);
-  char *pgdev = (char *)calloc(tmp + 1, sizeof(char));
+  pgdev = (char *)calloc(tmp + 1, sizeof(char));
   chkfread(pgdev, sizeof(char), tmp, f);
 
-  double dt, startT;
-  char *rastr = (char *)calloc(16, sizeof(char));
-  char *decstr = (char *)calloc(16, sizeof(char));
   {
     int ii, haspos = 1;
     chkfread(temp, sizeof(char), 16, f);
@@ -90,13 +109,13 @@ nb::dict readpfd(std::string fn) {
     }
   }
 
-  double endT = parsedouble(f, byteswap);
-  double tepoch = parsedouble(f, byteswap);
-  double bepoch = parsedouble(f, byteswap);
-  double avgvoverc = parsedouble(f, byteswap);
-  double lofreq = parsedouble(f, byteswap);
-  double chan_wid = parsedouble(f, byteswap);
-  double bestdm = parsedouble(f, byteswap);
+  endT = parsedouble(f, byteswap);
+  tepoch = parsedouble(f, byteswap);
+  bepoch = parsedouble(f, byteswap);
+  avgvoverc = parsedouble(f, byteswap);
+  lofreq = parsedouble(f, byteswap);
+  chan_wid = parsedouble(f, byteswap);
+  bestdm = parsedouble(f, byteswap);
 
   float topopow = parsefloat(f, byteswap);
   parsefloat(f, byteswap);
@@ -124,19 +143,19 @@ nb::dict readpfd(std::string fn) {
   double orbpd = parsedouble(f, byteswap);
   double orbwd = parsedouble(f, byteswap);
 
-  double *dms = (double *)calloc(numdms, sizeof(double));
+  dms = (double *)calloc(numdms, sizeof(double));
   chkfread(dms, sizeof(double), numdms, f);
 
-  double *periods = (double *)calloc(numperiods, sizeof(double));
+  periods = (double *)calloc(numperiods, sizeof(double));
   chkfread(periods, sizeof(double), numperiods, f);
 
-  double *pdots = (double *)calloc(numpdots, sizeof(double));
+  pdots = (double *)calloc(numpdots, sizeof(double));
   chkfread(pdots, sizeof(double), numpdots, f);
 
-  double *rawfolds = (double *)calloc(nsub * npart * proflen, sizeof(double));
+  rawfolds = (double *)calloc(nsub * npart * proflen, sizeof(double));
   chkfread(rawfolds, sizeof(double), nsub * npart * proflen, f);
 
-  double *foldstats = (double *)calloc(nsub * npart * 7, sizeof(double));
+  foldstats = (double *)calloc(nsub * npart * 7, sizeof(double));
   chkfread(foldstats, sizeof(double), nsub * npart * 7, f);
 
   if (byteswap) {

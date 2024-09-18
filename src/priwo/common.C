@@ -1,5 +1,4 @@
 #include "common.h"
-#include <cstring>
 
 #ifndef SWAP
 #define SWAP(a, b)                                                             \
@@ -9,6 +8,28 @@
 #endif
 
 static unsigned char tmpswap;
+
+char *rmtrail(char *str) {
+  int i;
+  if (str && 0 != (i = strlen(str))) {
+    while (--i >= 0) {
+      if (!isspace(str[i])) break;
+    }
+    str[++i] = '\0';
+  }
+  return str;
+}
+
+char *rmlead(char *str) {
+  char *obuf;
+  if (str) {
+    for (obuf = str; *obuf && isspace(*obuf); ++obuf);
+    if (str != obuf) memmove(str, obuf, strlen(obuf) + 1);
+  }
+  return str;
+}
+
+char *rmspace(char *str) { return rmlead(rmtrail(str)); }
 
 int swapint(int var) {
   unsigned char *buffer;
@@ -126,20 +147,23 @@ double parsedouble(FILE *infile, int byteswap) {
 
 FILE *chkfopen(const char *path, const char *mode) {
   FILE *file;
-  if ((file = fopen(path, mode)) == NULL) CannotOpenFileError();
+  if ((file = fopen(path, mode)) == NULL)
+    throw std::runtime_error("Cannot open file! Exiting...");
   return (file);
 }
 
 size_t chkfread(void *data, size_t type, size_t number, FILE *stream) {
   size_t num;
   num = fread(data, type, number, stream);
-  if (num != number && ferror(stream)) throw CannotOpenFileError();
+  if (num != number && ferror(stream))
+    throw std::runtime_error("Cannot read from file! Exiting...");
   return num;
 }
 
 size_t chkfwrite(void *data, size_t type, size_t number, FILE *stream) {
   size_t num;
   num = fwrite(data, type, number, stream);
-  if (num != number && ferror(stream)) CannotOpenFileError();
+  if (num != number && ferror(stream))
+    throw std::runtime_error("Cannot write to file! Exiting...");
   return num;
 }

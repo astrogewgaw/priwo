@@ -1,19 +1,23 @@
 #ifndef COMMON
 #define COMMON
 
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
-#include <exception>
+#include <cstring>
+#include <stdexcept>
+#include <tuple>
 
-class EOFError : public std::exception {
-  virtual const char *what() const throw() { return "Reached EOF! Exiting..."; }
-};
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
 
-class CannotOpenFileError : public std::exception {
-  virtual const char *what() const throw() {
-    return "Cannot open file! Exiting...";
-  }
-};
+namespace nb = nanobind;
+
+char *rmlead(char *str);
+char *rmtrail(char *str);
+char *rmspace(char *str);
 
 int swapint(int var);
 short swapshort(short var);

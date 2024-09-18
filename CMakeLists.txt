@@ -40,23 +40,32 @@ find_package(nanobind CONFIG REQUIRED)
 nanobind_add_module(
   _internals
   STABLE_ABI
+  src/priwo/hdr.h
   src/priwo/hdr.C
-  # src/priwo/fil.C
-  # src/priwo/tim.C
+  src/priwo/fil.h
+  src/priwo/fil.C
+  src/priwo/tim.h
+  src/priwo/tim.C
 
-  # src/priwo/inf.C
-  # src/priwo/dat.C
-  # src/priwo/fft.C
+  src/priwo/inf.h
+  src/priwo/inf.C
+  src/priwo/dat.h
+  src/priwo/dat.C
+  src/priwo/fft.h
+  src/priwo/fft.C
+  src/priwo/pfd.h
   src/priwo/pfd.C
-  # src/priwo/bestprof.C
+  src/priwo/bestprof.h
+  src/priwo/bestprof.C
 
 
+  src/priwo/polycos.h
   src/priwo/polycos.C
 
-  # src/priwo/bits.C
-  # src/priwo/bits.h
-  src/priwo/priwo.C
+  src/priwo/bits.h
+  src/priwo/bits.C
   src/priwo/priwo.h
+  src/priwo/priwo.C
   src/priwo/common.h
   src/priwo/common.C
 )

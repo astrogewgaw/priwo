@@ -1,26 +1,10 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/string.h>
-
-#include "common.h"
-#include "priwo.h"
-
-namespace nb = nanobind;
-
-class InvalidHeaderError : public std::exception {
-  virtual const char *what() const throw() {
-    return "SIGPROC header invalid! Exiting...";
-  }
-};
+#include "hdr.h"
 
 static void _getstr(FILE *f, int *nbytes, char string[]) {
   int nchar;
   chkfread(&nchar, sizeof(int), 1, f);
   *nbytes = sizeof(int);
-  if (feof(f)) throw EOFError();
+  if (feof(f)) throw std::runtime_error("Reached EOF! Exiting...");
   if (nchar > 80 || nchar < 1) return;
   chkfread(string, nchar, 1, f);
   string[nchar] = '\0';
@@ -169,7 +153,7 @@ std::string _getmachn(int machine_id) {
 }
 
 nb::dict readhdr(std::string fn) {
-  nb::dict header;
+  nb::dict hdr;
 
   FILE *f = chkfopen(fn.c_str(), "rb");
 
@@ -181,14 +165,37 @@ nb::dict readhdr(std::string fn) {
   _getstr(f, &nbytes, string);
   if (strcmp(string, "HEADER_START")) {
     rewind(f);
-    throw InvalidHeaderError();
+    throw std::runtime_error("SIGPROC header invalid! Exiting...");
   }
   totalbytes = nbytes;
 
-  char inpfile[80], srcname[80];
-  int ibeam = 1, sumifs = 1, signedints = 0;
-  int nifs, nbits, nbeams, nchans, nsamples, datatype, machine_id, telescope_id;
-  double fch1, foff, tsamp, refdm, tstart, src_raj, src_dej, az_start, za_start;
+  int datatype;
+  char inpfile[80]; /* Input filename */
+  char srcname[80]; /* Source name */
+  long long N;      /* Number of points (in time) in the file */
+  double tstart;    /* MJD start time */
+  double tsamp;     /* Sampling time in sec */
+  double src_raj;   /* Source RA  (J2000) in hhmmss.ss */
+  double src_dej;   /* Source DEC (J2000) in ddmmss.ss */
+  double az_start;  /* Starting azimuth in deg */
+  double za_start;  /* Starting zenith angle in deg */
+  double fch1;      /* Highest channel frequency (MHz) */
+  double foff;      /* Channel stepsize (MHz) */
+  double refdm;     /* Reference dispersion measure (pc/cm^3) */
+  int machine_id;   /* Instrument ID (see backend_name() */
+  int telescope_id; /* Telescope ID (see telescope_name() */
+  int nchans;       /* Number of filterbank channels */
+  int nsamples;     /* Number of filterbank samples */
+  int nbits;        /* Number of bits in the filterbank samples */
+  int nifs;         /* Number of IFs present */
+  int nbeams;       /* Number of beams in the observing system */
+  int ibeam;        /* Beam number used for this data */
+  int sumifs;       /* Whether the IFs are summed or not */
+  int signedints;   /* Whether the integer data is signed or not */
+
+  ibeam = 1;
+  sumifs = 1;
+  signedints = 0;
 
   while (1) {
     _getstr(f, &nbytes, string);
@@ -201,61 +208,61 @@ nb::dict readhdr(std::string fn) {
     } else if (!strcmp(string, "az_start")) {
       chkfread(&(az_start), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["az_start"] = az_start;
+      hdr["az_start"] = az_start;
     } else if (!strcmp(string, "za_start")) {
       chkfread(&(za_start), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["za_start"] = za_start;
+      hdr["za_start"] = za_start;
     } else if (!strcmp(string, "src_raj")) {
       chkfread(&(src_raj), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["src_raj"] = src_raj;
+      hdr["src_raj"] = src_raj;
     } else if (!strcmp(string, "src_dej")) {
       chkfread(&(src_dej), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["src_dej"] = src_dej;
+      hdr["src_dej"] = src_dej;
     } else if (!strcmp(string, "tstart")) {
       chkfread(&(tstart), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["tstart"] = tstart;
+      hdr["tstart"] = tstart;
     } else if (!strcmp(string, "tsamp")) {
       chkfread(&(tsamp), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["tsamp"] = tsamp;
+      hdr["tsamp"] = tsamp;
     } else if (!strcmp(string, "fch1")) {
       chkfread(&(fch1), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["fch1"] = fch1;
+      hdr["fch1"] = fch1;
     } else if (!strcmp(string, "foff")) {
       chkfread(&(foff), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["foff"] = foff;
+      hdr["foff"] = foff;
     } else if (!strcmp(string, "refdm")) {
       chkfread(&(refdm), sizeof(double), 1, f);
       totalbytes += sizeof(double);
-      header["refdm"] = refdm;
+      hdr["refdm"] = refdm;
     } else if (!strcmp(string, "nchans")) {
       chkfread(&(nchans), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["nchans"] = nchans;
+      hdr["nchans"] = nchans;
     } else if (!strcmp(string, "telescope_id")) {
       chkfread(&(telescope_id), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["telescope_id"] = telescope_id;
-      header["telescope"] = _getteln(telescope_id);
+      hdr["telescope_id"] = telescope_id;
+      hdr["telescope"] = _getteln(telescope_id);
     } else if (!strcmp(string, "machine_id")) {
       chkfread(&(machine_id), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["machine_id"] = machine_id;
-      header["machine"] = _getmachn(machine_id);
+      hdr["machine_id"] = machine_id;
+      hdr["machine"] = _getmachn(machine_id);
     } else if (!strcmp(string, "data_type")) {
       chkfread(&(datatype), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["datatype"] = datatype;
+      hdr["datatype"] = datatype;
     } else if (!strcmp(string, "nbits")) {
       chkfread(&(nbits), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["nbits"] = nbits;
+      hdr["nbits"] = nbits;
     } else if (!strcmp(string, "barycentric")) {
       chkfread(&barycentric, sizeof(int), 1, f);
       totalbytes += sizeof(int);
@@ -265,46 +272,47 @@ nb::dict readhdr(std::string fn) {
     } else if (!strcmp(string, "nsamples")) {
       chkfread(&(nsamples), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["nsamples"] = nsamples;
+      hdr["nsamples"] = nsamples;
     } else if (!strcmp(string, "nifs")) {
       chkfread(&(nifs), sizeof(int), 1, f);
       if (nifs > 1) sumifs = 0;
       totalbytes += sizeof(int);
-      header["nifs"] = nifs;
-      header["sumifs"] = sumifs;
+      hdr["nifs"] = nifs;
+      hdr["sumifs"] = sumifs;
     } else if (!strcmp(string, "nbeams")) {
       chkfread(&(nbeams), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["nbeams"] = nbeams;
+      hdr["nbeams"] = nbeams;
     } else if (!strcmp(string, "ibeam")) {
       chkfread(&(ibeam), sizeof(int), 1, f);
       totalbytes += sizeof(int);
-      header["ibeam"] = ibeam;
+      hdr["ibeam"] = ibeam;
     } else if (!strcmp(string, "signed")) {
       char tmp;
       chkfread(&(signedints), sizeof(char), 1, f);
       totalbytes += sizeof(char);
-      header["signedints"] = signedints;
+      hdr["signedints"] = signedints;
     } else if (expecting_rawdatafile) {
       strcpy(inpfile, string);
-      header["rawdatafile"] = inpfile;
+      hdr["rawdatafile"] = inpfile;
       expecting_rawdatafile = 0;
     } else if (expecting_source_name) {
       strcpy(srcname, string);
-      header["source_name"] = srcname;
+      hdr["source_name"] = srcname;
       expecting_source_name = 0;
     }
   }
   fclose(f);
   totalbytes += nbytes;
-  return header;
+  hdr["hdrlen"] = totalbytes;
+  return hdr;
 }
 
-void writehdr(nb::dict &dict, std::string fn) {
+void writehdr(nb::dict &hdr, std::string fn) {
   FILE *f = chkfopen(fn.c_str(), "wb");
 
   _sendstr("HEADER_START", f);
-  for (auto item : dict) {
+  for (auto item : hdr) {
     std::string key = nb::cast<std::string>(item.first);
     if (!strcmp(key.c_str(), "rawdatafile")) {
       _sendstr(key, f);

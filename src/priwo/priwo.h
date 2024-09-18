@@ -1,5 +1,9 @@
-#include <nanobind/nanobind.h>
-namespace nb = nanobind;
-
-void init_hdr(nb::module_ m);
-void init_pfd(nb::module_ m);
+#include "bestprof.h"
+#include "dat.h"
+#include "fft.h"
+#include "fil.h"
+#include "hdr.h"
+#include "inf.h"
+#include "pfd.h"
+#include "polycos.h"
+#include "tim.h"
