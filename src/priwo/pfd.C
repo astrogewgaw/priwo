@@ -225,6 +225,7 @@ nb::dict readpfd(std::string fn) {
   orb["p"] = orbp;
   orb["e"] = orbe;
   orb["x"] = orbx;
+  orb["w"] = orbw;
   orb["t"] = orbt;
   orb["pd"] = orbpd;
   orb["wd"] = orbwd;
@@ -252,4 +253,148 @@ nb::dict readpfd(std::string fn) {
   return pfd;
 }
 
-void init_pfd(nb::module_ m) { m.def("readpfd", &readpfd); }
+void writepfd(nb::dict pfd, std::string fn) {
+  FILE *f = chkfopen(fn.c_str(), "wb");
+  int itmp;
+
+  int numdms = nb::cast<int>(pfd["numdms"]);
+  int numperiods = nb::cast<int>(pfd["numperiods"]);
+  int numpdots = nb::cast<int>(pfd["numpdots"]);
+  int nsub = nb::cast<int>(pfd["nsub"]);
+  int npart = nb::cast<int>(pfd["npart"]);
+  int proflen = nb::cast<int>(pfd["proflen"]);
+  int numchan = nb::cast<int>(pfd["numchan"]);
+  int pstep = nb::cast<int>(pfd["pstep"]);
+  int pdstep = nb::cast<int>(pfd["pdstep"]);
+  int dmstep = nb::cast<int>(pfd["dmstep"]);
+  int ndmfact = nb::cast<int>(pfd["ndmfact"]);
+  int npfact = nb::cast<int>(pfd["npfact"]);
+
+  std::string filenm = nb::cast<std::string>(pfd["filenm"]);
+  std::string candnm = nb::cast<std::string>(pfd["candnm"]);
+  std::string telescope = nb::cast<std::string>(pfd["telescope"]);
+  std::string pgdev = nb::cast<std::string>(pfd["pgdev"]);
+
+  std::string rastr = nb::cast<std::string>(pfd["rastr"]);
+  std::string decstr = nb::cast<std::string>(pfd["decstr"]);
+
+  double dt = nb::cast<double>(pfd["dt"]);
+  double startT = nb::cast<double>(pfd["startT"]);
+  double endT = nb::cast<double>(pfd["endT"]);
+  double tepoch = nb::cast<double>(pfd["tepoch"]);
+  double bepoch = nb::cast<double>(pfd["bepoch"]);
+  double avgvoverc = nb::cast<double>(pfd["avgvoverc"]);
+  double lofreq = nb::cast<double>(pfd["lofreq"]);
+  double chan_wid = nb::cast<double>(pfd["chan_wid"]);
+  double bestdm = nb::cast<double>(pfd["bestdm"]);
+
+  chkfwrite(&numdms, sizeof(int), 1, f);
+  chkfwrite(&numperiods, sizeof(int), 1, f);
+  chkfwrite(&numpdots, sizeof(int), 1, f);
+  chkfwrite(&nsub, sizeof(int), 1, f);
+  chkfwrite(&npart, sizeof(int), 1, f);
+  chkfwrite(&proflen, sizeof(int), 1, f);
+  chkfwrite(&numchan, sizeof(int), 1, f);
+  chkfwrite(&pstep, sizeof(int), 1, f);
+  chkfwrite(&pdstep, sizeof(int), 1, f);
+  chkfwrite(&dmstep, sizeof(int), 1, f);
+  chkfwrite(&ndmfact, sizeof(int), 1, f);
+  chkfwrite(&npfact, sizeof(int), 1, f);
+
+  itmp = strlen(filenm.c_str());
+  chkfwrite(&itmp, sizeof(int), 1, f);
+  chkfwrite(filenm.data(), sizeof(char), itmp, f);
+
+  itmp = strlen(candnm.c_str());
+  chkfwrite(&itmp, sizeof(int), 1, f);
+  chkfwrite(candnm.data(), sizeof(char), itmp, f);
+
+  itmp = strlen(telescope.c_str());
+  chkfwrite(&itmp, sizeof(int), 1, f);
+  chkfwrite(telescope.data(), sizeof(char), itmp, f);
+
+  itmp = strlen(pgdev.c_str());
+  chkfwrite(&itmp, sizeof(int), 1, f);
+  chkfwrite(pgdev.data(), sizeof(char), itmp, f);
+
+  double topopow = nb::cast<double>(pfd["topo"]["pow"]);
+  double topop1 = nb::cast<double>(pfd["topo"]["p1"]);
+  double topop2 = nb::cast<double>(pfd["topo"]["p2"]);
+  double topop3 = nb::cast<double>(pfd["topo"]["p3"]);
+
+  double barypow = nb::cast<double>(pfd["bary"]["pow"]);
+  double baryp1 = nb::cast<double>(pfd["bary"]["p1"]);
+  double baryp2 = nb::cast<double>(pfd["bary"]["p2"]);
+  double baryp3 = nb::cast<double>(pfd["bary"]["p3"]);
+
+  double foldpow = nb::cast<double>(pfd["fold"]["pow"]);
+  double foldp1 = nb::cast<double>(pfd["fold"]["p1"]);
+  double foldp2 = nb::cast<double>(pfd["fold"]["p2"]);
+  double foldp3 = nb::cast<double>(pfd["fold"]["p3"]);
+
+  double orbp = nb::cast<double>(pfd["orb"]["p"]);
+  double orbe = nb::cast<double>(pfd["orb"]["e"]);
+  double orbx = nb::cast<double>(pfd["orb"]["x"]);
+  double orbw = nb::cast<double>(pfd["orb"]["w"]);
+  double orbt = nb::cast<double>(pfd["orb"]["t"]);
+  double orbpd = nb::cast<double>(pfd["orb"]["pd"]);
+  double orbwd = nb::cast<double>(pfd["orb"]["wd"]);
+
+  chkfwrite(rastr.data(), sizeof(char), 16, f);
+  chkfwrite(decstr.data(), sizeof(char), 16, f);
+  chkfwrite(&dt, sizeof(double), 1, f);
+  chkfwrite(&startT, sizeof(double), 1, f);
+  chkfwrite(&endT, sizeof(double), 1, f);
+  chkfwrite(&tepoch, sizeof(double), 1, f);
+  chkfwrite(&bepoch, sizeof(double), 1, f);
+  chkfwrite(&avgvoverc, sizeof(double), 1, f);
+  chkfwrite(&lofreq, sizeof(double), 1, f);
+  chkfwrite(&chan_wid, sizeof(double), 1, f);
+  chkfwrite(&bestdm, sizeof(double), 1, f);
+  chkfwrite(&topopow, sizeof(double), 1, f);
+  chkfwrite(&topop1, sizeof(double), 1, f);
+  chkfwrite(&topop2, sizeof(double), 1, f);
+  chkfwrite(&topop3, sizeof(double), 1, f);
+  chkfwrite(&barypow, sizeof(double), 1, f);
+  chkfwrite(&baryp1, sizeof(double), 1, f);
+  chkfwrite(&baryp2, sizeof(double), 1, f);
+  chkfwrite(&baryp3, sizeof(double), 1, f);
+  chkfwrite(&foldpow, sizeof(double), 1, f);
+  chkfwrite(&foldp1, sizeof(double), 1, f);
+  chkfwrite(&foldp2, sizeof(double), 1, f);
+  chkfwrite(&foldp3, sizeof(double), 1, f);
+  chkfwrite(&orbp, sizeof(double), 1, f);
+  chkfwrite(&orbe, sizeof(double), 1, f);
+  chkfwrite(&orbx, sizeof(double), 1, f);
+  chkfwrite(&orbw, sizeof(double), 1, f);
+  chkfwrite(&orbt, sizeof(double), 1, f);
+  chkfwrite(&orbpd, sizeof(double), 1, f);
+  chkfwrite(&orbwd, sizeof(double), 1, f);
+
+  nb::ndarray<nb::numpy, double> dms =
+      nb::cast<nb::ndarray<nb::numpy, double>>(pfd["dms"]);
+
+  nb::ndarray<nb::numpy, double> periods =
+      nb::cast<nb::ndarray<nb::numpy, double>>(pfd["periods"]);
+
+  nb::ndarray<nb::numpy, double> pdots =
+      nb::cast<nb::ndarray<nb::numpy, double>>(pfd["pdots"]);
+
+  nb::ndarray<nb::numpy, double> rawfolds =
+      nb::cast<nb::ndarray<nb::numpy, double>>(pfd["rawfolds"]);
+
+  nb::ndarray<nb::numpy, double> stats =
+      nb::cast<nb::ndarray<nb::numpy, double>>(pfd["stats"]);
+
+  chkfwrite(dms.data(), sizeof(double), numdms, f);
+  chkfwrite(periods.data(), sizeof(double), numperiods, f);
+  chkfwrite(pdots.data(), sizeof(double), numpdots, f);
+  chkfwrite(rawfolds.data(), sizeof(double), nsub * npart * proflen, f);
+  chkfwrite(stats.data(), sizeof(double), nsub * npart * 7, f);
+  fclose(f);
+}
+
+void init_pfd(nb::module_ m) {
+  m.def("readpfd", &readpfd);
+  m.def("writepfd", &writepfd);
+}
