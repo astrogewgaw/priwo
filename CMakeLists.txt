@@ -40,6 +40,13 @@ find_package(nanobind CONFIG REQUIRED)
 nanobind_add_module(
   _internals
   STABLE_ABI
+  src/priwo/bits.h
+  src/priwo/bits.C
+  src/priwo/priwo.h
+  src/priwo/priwo.C
+  src/priwo/common.h
+  src/priwo/common.C
+
   src/priwo/hdr.h
   src/priwo/hdr.C
   src/priwo/fil.h
@@ -61,11 +68,6 @@ nanobind_add_module(
 
   src/priwo/polycos.h
   src/priwo/polycos.C
-
-  src/priwo/priwo.h
-  src/priwo/priwo.C
-  src/priwo/common.h
-  src/priwo/common.C
 )
 
 # Install directive for scikit-build-core

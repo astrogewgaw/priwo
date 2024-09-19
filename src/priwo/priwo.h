@@ -1,4 +1,8 @@
+#ifndef PRIWO
+#define PRIWO
+
 #include "bestprof.h"
+#include "bits.h"
 #include "dat.h"
 #include "fft.h"
 #include "fil.h"
@@ -7,3 +11,5 @@
 #include "pfd.h"
 #include "polycos.h"
 #include "tim.h"
+
+#endif

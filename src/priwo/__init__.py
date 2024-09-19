@@ -8,6 +8,15 @@ from priwo._internals import (
     readpfd,
     readpolycos,
     readbestprof,
+    writehdr,
+    writetim,
+    writefil,
+    writeinf,
+    writedat,
+    writefft,
+    writepfd,
+    writepolycos,
+    writebestprof,
 )
 
 __all__ = [
@@ -20,4 +29,13 @@ __all__ = [
     "readpfd",
     "readpolycos",
     "readbestprof",
+    "writehdr",
+    "writetim",
+    "writefil",
+    "writeinf",
+    "writedat",
+    "writefft",
+    "writepfd",
+    "writepolycos",
+    "writebestprof",
 ]

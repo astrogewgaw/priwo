@@ -1,5 +1,4 @@
 #include "common.h"
-#include "nanobind/ndarray.h"
 
 #ifndef SWAP
 #define SWAP(a, b)                                                             \

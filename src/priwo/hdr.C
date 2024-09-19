@@ -144,7 +144,7 @@ std::string _getmachn(int machine_id) {
     strcpy(string, "KAT-DC2");
     break;
   default:
-    strcpy(backend, "Unknown");
+    strcpy(string, "Unknown");
     break;
   }
   backend = (char *)calloc(strlen(string) + 1, 1);

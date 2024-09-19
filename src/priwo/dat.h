@@ -1,3 +1,6 @@
+#ifndef DAT
+#define DAT
+
 #include <filesystem>
 
 #include "common.h"
@@ -8,3 +11,5 @@ std::tuple<nb::dict, nb::ndarray<nb::numpy, float, nb::ndim<1>>>
 readdat(std::string fn);
 void writedat(nb::dict meta, nb::ndarray<nb::numpy, float, nb::ndim<1>> data,
               std::string fn);
+
+#endif
