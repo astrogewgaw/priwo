@@ -1,6 +1,3 @@
-#ifndef COMMON
-#define COMMON
-
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
@@ -35,5 +32,3 @@ double parsedouble(FILE *infile, int byteswap);
 FILE *chkfopen(const char *path, const char *mode);
 size_t chkfread(void *data, size_t type, size_t number, FILE *stream);
 size_t chkfwrite(void *data, size_t type, size_t number, FILE *stream);
-
-#endif

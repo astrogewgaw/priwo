@@ -136,6 +136,6 @@ void writebestprof(nb::dict meta,
 }
 
 void init_bestprof(nb::module_ m) {
-  m.def("readbestprof", &readbestprof, nb::rv_policy::copy);
+  m.def("readbestprof", &readbestprof);
   m.def("writebestprof", &writebestprof);
 }

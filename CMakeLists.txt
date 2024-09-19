@@ -62,8 +62,6 @@ nanobind_add_module(
   src/priwo/polycos.h
   src/priwo/polycos.C
 
-  src/priwo/bits.h
-  src/priwo/bits.C
   src/priwo/priwo.h
   src/priwo/priwo.C
   src/priwo/common.h
