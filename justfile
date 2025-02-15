@@ -58,12 +58,12 @@ default:
 
 # Run tests.
 @test: && clean
-	ward
+  pytest -vv tests
 
 # Install.
 @install: && clean
     echo "Installing..."
-    pip install -e .
+    pip install --no-build-isolation -Ceditable.rebuild=true -ve .
 
 # Uninstall.
 @uninstall: && clean
@@ -75,4 +75,4 @@ default:
 # Build docs.
 @docs:
     echo "Building docs for {{pkg}}..."
-    sphinx-autobuild docs/source docs/build
+    sphinx-reload docs
