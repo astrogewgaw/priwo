@@ -1,3 +1,7 @@
+/build
+.clangd
+.clang_format
+
 dist
 build
 .egg

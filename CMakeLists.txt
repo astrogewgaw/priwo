@@ -1,0 +1,74 @@
+# Set the minimum CMake version and policies for highest tested version
+cmake_minimum_required(VERSION 3.15...3.27)
+
+# Set up the project and ensure there is a working C++ compiler
+project(priwo LANGUAGES CXX)
+
+# Warn if the user invokes CMake directly
+if (NOT SKBUILD)
+  message(WARNING "\
+  This CMake file is meant to be executed using 'scikit-build-core'.
+  Running it directly will almost certainly not produce the desired
+  result. If you are a user trying to install this package, use the
+  command below, which will install all necessary build dependencies,
+  compile the package in an isolated environment, and then install it.
+  =====================================================================
+   $ pip install .
+  =====================================================================
+  If you are a software developer, and this is your own package, then
+  it is usually much more efficient to install the build dependencies
+  in your environment once and use the following command that avoids
+  a costly creation of a new virtual environment at every compilation:
+  =====================================================================
+   $ pip install nanobind scikit-build-core[pyproject]
+   $ pip install --no-build-isolation -ve .
+  =====================================================================
+  You may optionally add -Ceditable.rebuild=true to auto-rebuild when
+  the package is imported. Otherwise, you need to rerun the above
+  after editing C++ files.")
+endif()
+
+# Try to import all Python components potentially needed by nanobind
+find_package(Python 3.8
+  REQUIRED COMPONENTS Interpreter Development.Module
+  OPTIONAL_COMPONENTS Development.SABIModule)
+
+# Import nanobind through CMake's find_package mechanism
+find_package(nanobind CONFIG REQUIRED)
+
+# Add the module
+nanobind_add_module(
+  _internals
+  STABLE_ABI
+  src/priwo/bits.h
+  src/priwo/bits.C
+  src/priwo/priwo.h
+  src/priwo/priwo.C
+  src/priwo/common.h
+  src/priwo/common.C
+
+  src/priwo/hdr.h
+  src/priwo/hdr.C
+  src/priwo/fil.h
+  src/priwo/fil.C
+  src/priwo/tim.h
+  src/priwo/tim.C
+
+  src/priwo/inf.h
+  src/priwo/inf.C
+  src/priwo/dat.h
+  src/priwo/dat.C
+  src/priwo/fft.h
+  src/priwo/fft.C
+  src/priwo/pfd.h
+  src/priwo/pfd.C
+  src/priwo/bestprof.h
+  src/priwo/bestprof.C
+
+
+  src/priwo/polycos.h
+  src/priwo/polycos.C
+)
+
+# Install directive for scikit-build-core
+install(TARGETS _internals LIBRARY DESTINATION priwo)

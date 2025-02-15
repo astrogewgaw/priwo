@@ -1,124 +1,79 @@
-from ward import test
-from ward import fixture
-from pathlib import Path
-from tempfile import NamedTemporaryFile
-from priwo.presto.inf import readinf, writeinf
+from priwo import readinf
 
 
-@fixture
-def data():
-    return Path(__file__).parent.joinpath("data")
+def test_radio_inf(datadir):
+    assert readinf(str(datadir / "test_radio.inf")) == {
+        "name": "fake_presto_radio",
+        "telescope": "Parkes",
+        "bary": 1,
+        "object": "Pulsar",
+        "observer": "Kenji Oba",
+        "instrument": "Multibeam",
+        "mjd": (59000, 0.0),
+        "ra": (0, 0, 1.0),
+        "dec": (0, 0, -1.0),
+        "N": 16.0,
+        "dt": 6.4e-05,
+        "numonoff": 1,
+        "onoff": [(0.0, 15.0)],
+        "band": "Radio",
+        "dm": 42.42,
+        "fov": 981.0,
+        "freq": 1182.1953125,
+        "num_chan": 1024,
+        "freqband": 400.0,
+        "chan_wid": 0.390625,
+        "analyzer": "Space Sheriff Gavan",
+        "notes": "Input filterbank samples have 2 bits.\n",
+    }
 
 
-def check(f):
-    assert readinf(f) == dict(
-        analyst="Space Sheriff Gavan",
-        barycentered=True,
-        beamdiam=981.0,
-        breaks=False,
-        bw=400.0,
-        cfreq=1182.1953125,
-        chanwidth=0.390625,
-        dec="-00:00:01.0000",
-        dm=42.42,
-        emband="Radio",
-        filename="fake_presto_radio",
-        instrument="Multibeam",
-        mjd=59000.0,
-        nchannels=1024,
-        notes="Input filterbank samples have 2 bits.",
-        nsamples=16,
-        object="Pulsar",
-        observer="Kenji Oba",
-        onoffs=[],
-        ra="00:00:01.0000",
-        samptime=6.4e-05,
-        telescope="Parkes",
-    )
+def test_radio_breaks_inf(datadir):
+    assert readinf(str(datadir / "test_radio_breaks.inf")) == {
+        "name": "fake_presto_radio_breaks",
+        "telescope": "Parkes",
+        "bary": 1,
+        "object": "Pulsar",
+        "observer": "Kenji Oba",
+        "instrument": "Multibeam",
+        "mjd": (59000, 0.0),
+        "ra": (0, 0, 1.0),
+        "dec": (0, 0, -1.0),
+        "N": 16.0,
+        "dt": 6.4e-05,
+        "numonoff": 2,
+        "onoff": [(0.0, 14.0), (15.0, 15.0)],
+        "band": "Radio",
+        "dm": 42.42,
+        "fov": 981.0,
+        "freq": 1182.1953125,
+        "num_chan": 1024,
+        "freqband": 400.0,
+        "chan_wid": 0.390625,
+        "analyzer": "Space Sheriff Gavan",
+        "notes": "Input filterbank samples have 2 bits.\n",
+    }
 
 
-def check_breaks(f):
-    assert readinf(f) == dict(
-        analyst="Space Sheriff Gavan",
-        barycentered=True,
-        beamdiam=981.0,
-        breaks=True,
-        bw=400.0,
-        cfreq=1182.1953125,
-        chanwidth=0.390625,
-        dec="-00:00:01.0000",
-        dm=42.42,
-        emband="Radio",
-        filename="fake_presto_radio_breaks",
-        instrument="Multibeam",
-        mjd=59000.0,
-        nchannels=1024,
-        notes="Input filterbank samples have 2 bits.",
-        nsamples=16,
-        object="Pulsar",
-        observer="Kenji Oba",
-        onoffs=[[0, 14], [15, 15]],
-        ra="00:00:01.0000",
-        samptime=6.4e-05,
-        telescope="Parkes",
-    )
-
-
-def check_xray(f):
-    assert readinf(f) == dict(
-        analyst="Space Sheriff Gavan",
-        barycentered=True,
-        bpE=5.0,
-        breaks=False,
-        cE=1.0,
-        dec="-00:00:01.0000",
-        emband="X-ray",
-        filename="fake_presto_xray",
-        fov=3.0,
-        instrument="HRC-S",
-        mjd=59000.0,
-        notes="Full ms-resolution analysis",
-        nsamples=16,
-        object="Pulsar",
-        observer="Kenji Oba",
-        onoffs=[],
-        ra="00:00:01.0000",
-        samptime=6.4e-05,
-        telescope="Chandra",
-    )
-
-
-@test(f"{str(readinf.__doc__).strip()}, for radio data.")
-def _(f=data().joinpath("test_radio.inf")):
-    check(f)
-
-
-@test(f"{str(readinf.__doc__).strip()}, for radio data, but with breaks.")
-def _(f=data().joinpath("test_radio_breaks.inf")):
-    check_breaks(f)
-
-
-@test(f"{str(readinf.__doc__).strip()} for xray data.")
-def _(f=data().joinpath("test_xray.inf")):
-    check_xray(f)
-
-
-@test(f"{str(writeinf.__doc__).strip()}, for radio data.")
-def _(f=data().joinpath("test_radio.inf")):
-    with NamedTemporaryFile(suffix=".inf") as fp:
-        writeinf(readinf(f), fp.name)
-        check(fp.name)
-
-
-@test(f"{str(writeinf.__doc__).strip()}, for radio data, but with breaks.")
-def _(f=data().joinpath("test_radio_breaks.inf")):
-    with NamedTemporaryFile(suffix=".inf") as fp:
-        writeinf(readinf(f), fp.name)
-        check_breaks(fp.name)
-
-
-@test(f"{str(writeinf.__doc__).strip()}, for xray data.")
-def _(f=data().joinpath("test_xray.inf")):
-    with NamedTemporaryFile(suffix=".inf") as fp:
-        writeinf(readinf(f), fp.name)
-        check_xray(fp.name)
+def test_xray_inf(datadir):
+    assert readinf(str(datadir / "test_xray.inf")) == {
+        "name": "fake_presto_xray",
+        "telescope": "Chandra",
+        "bary": 1,
+        "object": "Pulsar",
+        "observer": "Kenji Oba",
+        "instrument": "HRC-S",
+        "mjd": (59000, 0.0),
+        "ra": (0, 0, 1.0),
+        "dec": (0, 0, -1.0),
+        "N": 16.0,
+        "dt": 6.4e-05,
+        "numonoff": 1,
+        "onoff": [(0.0, 15.0)],
+        "band": "X-ray",
+        "fov": 3.0,
+        "energy": 1.0,
+        "energyband": 5.0,
+        "analyzer": "Space Sheriff Gavan",
+        "notes": "Full ms-resolution analysis\n",
+    }
