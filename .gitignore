@@ -1,4 +1,5 @@
 /build
+.cache
 .clangd
 .clang_format
 
@@ -12,7 +13,7 @@ __pycache__
 .mypy_cache
 .pytest_cache
 .ipynb_checkpoints
-src/priwo/_version.py
+python/priwo/_version.py
 
 *.o
 *.so

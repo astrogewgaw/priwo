@@ -1,74 +1,86 @@
-# Set the minimum CMake version and policies for highest tested version
 cmake_minimum_required(VERSION 3.15...3.27)
 
-# Set up the project and ensure there is a working C++ compiler
-project(priwo LANGUAGES CXX)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+include(DynamicVersion)
+dynamic_version(PROJECT_PREFIX priwo_)
 
-# Warn if the user invokes CMake directly
-if (NOT SKBUILD)
-  message(WARNING "\
-  This CMake file is meant to be executed using 'scikit-build-core'.
-  Running it directly will almost certainly not produce the desired
-  result. If you are a user trying to install this package, use the
-  command below, which will install all necessary build dependencies,
-  compile the package in an isolated environment, and then install it.
-  =====================================================================
-   $ pip install .
-  =====================================================================
-  If you are a software developer, and this is your own package, then
-  it is usually much more efficient to install the build dependencies
-  in your environment once and use the following command that avoids
-  a costly creation of a new virtual environment at every compilation:
-  =====================================================================
-   $ pip install nanobind scikit-build-core[pyproject]
-   $ pip install --no-build-isolation -ve .
-  =====================================================================
-  You may optionally add -Ceditable.rebuild=true to auto-rebuild when
-  the package is imported. Otherwise, you need to rerun the above
-  after editing C++ files.")
-endif()
-
-# Try to import all Python components potentially needed by nanobind
-find_package(Python 3.8
-  REQUIRED COMPONENTS Interpreter Development.Module
-  OPTIONAL_COMPONENTS Development.SABIModule)
-
-# Import nanobind through CMake's find_package mechanism
-find_package(nanobind CONFIG REQUIRED)
-
-# Add the module
-nanobind_add_module(
-  _internals
-  STABLE_ABI
-  src/priwo/bits.h
-  src/priwo/bits.C
-  src/priwo/priwo.h
-  src/priwo/priwo.C
-  src/priwo/common.h
-  src/priwo/common.C
-
-  src/priwo/hdr.h
-  src/priwo/hdr.C
-  src/priwo/fil.h
-  src/priwo/fil.C
-  src/priwo/tim.h
-  src/priwo/tim.C
-
-  src/priwo/inf.h
-  src/priwo/inf.C
-  src/priwo/dat.h
-  src/priwo/dat.C
-  src/priwo/fft.h
-  src/priwo/fft.C
-  src/priwo/pfd.h
-  src/priwo/pfd.C
-  src/priwo/bestprof.h
-  src/priwo/bestprof.C
-
-
-  src/priwo/polycos.h
-  src/priwo/polycos.C
+project(
+  priwo
+  LANGUAGES CXX
+  VERSION ${PROJECT_VERSION}
+  DESCRIPTION "I/O for common pulsar/FRB data formats."
 )
 
-# Install directive for scikit-build-core
-install(TARGETS _internals LIBRARY DESTINATION priwo)
+include(CPM)
+include(LTO)
+include(Misc)
+include(Colors)
+include(ConfigSafeGuards)
+
+find_lto(CXX)
+
+CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
+CPMAddPackage("gh:TheLartians/StaticTypeInfo@1.3.2")
+
+add_library(
+  ${PROJECT_NAME}
+  ${PROJECT_SOURCE_DIR}/src/base.cc
+  ${PROJECT_SOURCE_DIR}/src/sigproc/hdr.cc
+  ${PROJECT_SOURCE_DIR}/src/sigproc/tim.cc
+  ${PROJECT_SOURCE_DIR}/src/sigproc/fil.cc
+  ${PROJECT_SOURCE_DIR}/src/presto/inf.cc
+  ${PROJECT_SOURCE_DIR}/src/presto/dat.cc
+  ${PROJECT_SOURCE_DIR}/src/presto/fft.cc
+  ${PROJECT_SOURCE_DIR}/src/presto/pfd.cc
+  ${PROJECT_SOURCE_DIR}/src/tempo/polycos.cc
+  ${PROJECT_SOURCE_DIR}/include/priwo/base.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/sigproc/hdr.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/sigproc/tim.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/sigproc/fil.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/presto/inf.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/presto/dat.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/presto/fft.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/presto/pfd.h
+  ${PROJECT_SOURCE_DIR}/include/priwo/tempo/polycos.h
+)
+set_target_properties(
+  ${PROJECT_NAME}
+  PROPERTIES CXX_STANDARD 17
+             CXX_EXTENSIONS NO
+             CXX_STANDARD_REQUIRED YES
+             POSITION_INDEPENDENT_CODE ON
+)
+target_link_libraries(${PROJECT_NAME})
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+                         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+)
+
+string(TOLOWER ${PROJECT_NAME}/version.h VERSION_HEADER_LOCATION)
+packageProject(
+  NAME ${PROJECT_NAME}
+  NAMESPACE ${PROJECT_NAME}
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+  BINARY_DIR ${PROJECT_BINARY_DIR}
+  INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include
+  VERSION_HEADER "${VERSION_HEADER_LOCATION}"
+  INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
+)
+
+set(PYTHON_EXT_NAME core)
+find_package(
+  Python 3.10 REQUIRED
+  COMPONENTS Interpreter Development.Module
+  OPTIONAL_COMPONENTS Development.SABIModule
+)
+execute_process(
+  COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  OUTPUT_VARIABLE NB_DIR
+)
+list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
+find_package(nanobind CONFIG REQUIRED)
+nanobind_add_module(${PYTHON_EXT_NAME} ${PROJECT_SOURCE_DIR}/python/priwo/bind.cc)
+target_link_libraries(${PYTHON_EXT_NAME} PRIVATE ${PROJECT_NAME})
+install(TARGETS ${PYTHON_EXT_NAME} LIBRARY DESTINATION ${PROJECT_NAME})
