@@ -1,3 +1,6 @@
+/build
+.clangd
+
 dist
 build
 .egg
@@ -6,6 +9,7 @@ build
 .coverage
 __pycache__
 .mypy_cache
+docs/_build
 .pytest_cache
 .ipynb_checkpoints
 src/priwo/_version.py

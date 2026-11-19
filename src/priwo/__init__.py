@@ -2,27 +2,39 @@
 I/O for common pulsar data formats.
 """
 
-from priwo.presto import *
-from priwo.timing import *
-from priwo.sigproc import *
+from beartype.claw import beartype_this_package
+
+beartype_this_package()
+
+from priwo.presto import (
+    readbpf,
+    readdat,
+    readfft,
+    readinf,
+    readpfd,
+    writebpf,
+    writedat,
+    writefft,
+    writeinf,
+    writepfd,
+)
+from priwo.sigproc import readfil, readhdr, readtim, writefil, writehdr, writetim
 
 __all__ = [
-    "readinf",
+    "readbpf",
     "readdat",
     "readfft",
-    "readbpf",
-    "readpfd",
-    "readhdr",
-    "readtim",
     "readfil",
-    "readpolycos",
-    "writeinf",
+    "readhdr",
+    "readinf",
+    "readpfd",
+    "readtim",
+    "writebpf",
     "writedat",
     "writefft",
-    "writebpf",
-    "writepfd",
-    "writehdr",
-    "writetim",
     "writefil",
-    "writepolycos",
+    "writehdr",
+    "writeinf",
+    "writepfd",
+    "writetim",
 ]

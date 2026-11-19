@@ -1,9 +1,44 @@
 [build-system]
-requires = [
-    "wheel",
-    "setuptools>=45",
-    "setuptools_scm[toml]>=6.0",
+build-backend = "scikit_build_core.build"
+requires = ["scikit-build-core>=0.10", "nanobind>=2.4", "setuptools-scm>=8"]
+
+[project]
+name = "priwo"
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = ["numpy", "beartype"]
+description = "I/O for common pulsar data formats, in Python."
+authors = [{name = "Ujjwal Panda", email = "ujjwalpanda97@gmail.com"}]
+
+classifiers = [
+  "Operating System :: Unix",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: Astronomy",
 ]
+
+[project.urls]
+Source = "https://github.com/astrogewgaw/priwo"
+Homepage = "https://github.com/astrogewgaw/priwo"
+Issues = "https://github.com/astrogewgaw/priwo/issues"
+Documentation = "https://priwo.readthedocs.io/en/latest"
+
+[tool.scikit-build]
+wheel.py-api = "cp312"
+cmake.build-type = "Release"
+wheel.packages = ["src/priwo"]
+build-dir = "build/{wheel_tag}"
+minimum-version = "build-system.requires"
+
+[tool.scikit-build.metadata]
+version.provider = "scikit_build_core.metadata.setuptools_scm"
 
 [tool.setuptools_scm]
 write_to = "src/priwo/_version.py"
@@ -15,7 +50,7 @@ quiet = false
 fail-under = 85
 badge-format = "svg"
 whitelist-regex = []
-ignore-magic = false
+ignore-magic = true
 ignore-module = false
 ignore-private = false
 ignore-setters = false
@@ -25,14 +60,14 @@ ignore-init-module = false
 ignore-semiprivate = false
 ignore-nested-classes = true
 badge-style = "for-the-badge"
-ignore-nested-functions = false
+ignore-nested-functions = true
 ignore-property-decorators = false
-generate-badge = "assets/docs_cov.svg"
+generate-badge = "assets/interrogate.svg"
 exclude = [
-    "docs",
-    "tests",
-    "build",
-    "assets",
-    "setup.py",
-    "src/priwo/_version.py",
+  "docs",
+  "tests",
+  "build",
+  "assets",
+  "setup.py",
+  "src/priwo/_version.py",
 ]
