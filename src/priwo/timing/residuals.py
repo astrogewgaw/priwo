@@ -16,12 +16,13 @@ Each record contains eight real*8 values:
 
 import struct
 from pathlib import Path
-from typing import BinaryIO
 
 import numpy as np
 
+from priwo.typing import BinaryFile
 
-def readresiduals(fn: str | Path | BinaryIO) -> dict:
+
+def readresiduals(fn: str | Path | BinaryFile) -> dict:
     """
     Read in TEMPO timing residuals.
 
@@ -31,7 +32,7 @@ def readresiduals(fn: str | Path | BinaryIO) -> dict:
 
     Parameters
     ----------
-    fn : str or pathlib.Path or BinaryIO
+    fn : str or pathlib.Path or binary file object
         Path to a residuals file, or a seekable binary file object to read
         from.
 
@@ -79,7 +80,7 @@ def readresiduals(fn: str | Path | BinaryIO) -> dict:
     >>> toas, resids = res["barytoas"], res["postfittime"]
     """
 
-    def read(f: BinaryIO) -> dict:
+    def read(f: BinaryFile) -> dict:
         res = {}
         swp = "<"
         data = f.read(8)
@@ -140,14 +141,14 @@ def readresiduals(fn: str | Path | BinaryIO) -> dict:
         fn = Path(fn)
         with open(fn, "rb") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, BinaryFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writeresiduals(res: dict, fn: str | Path | BinaryIO) -> None:
+def writeresiduals(res: dict, fn: str | Path | BinaryFile) -> None:
     """
     Write out TEMPO timing residuals.
 
@@ -156,7 +157,7 @@ def writeresiduals(res: dict, fn: str | Path | BinaryIO) -> None:
     res : dict
         The residuals as key-value pairs, with the same keys as those
         returned by `readresiduals`.
-    fn : str or pathlib.Path or BinaryIO
+    fn : str or pathlib.Path or binary file object
         Path to the output file, or a binary file object to write to.
 
     Returns
@@ -174,14 +175,14 @@ def writeresiduals(res: dict, fn: str | Path | BinaryIO) -> None:
     """
     raise NotImplementedError
 
-    def write(res: dict, f: BinaryIO) -> None:
+    def write(res: dict, f: BinaryFile) -> None:
         pass
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
         with open(fn, "wb+") as f:
             write(res, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, BinaryFile):
         write(res, fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."

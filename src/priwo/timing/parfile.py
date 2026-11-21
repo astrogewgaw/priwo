@@ -37,62 +37,16 @@ par file when trying to determine a pulsar ephemeris.
 
 import re
 from pathlib import Path
-from typing import TextIO
+
+from priwo.typing import TextFile
 
 
-def readpar(fn: str | Path | TextIO) -> dict:
+def readpar(fn: str | Path | TextFile) -> dict:
     """
     Read in a TEMPO/TEMPO2 pulsar ephemerides (*.par) file.
-
-    Lines beginning with ``#`` and blank lines are skipped, and Fortran-style
-    exponents (such as ``1.0D-12``) are converted to Python-style exponents
-    before parsing.
-
-    Parameters
-    ----------
-    fn : str or pathlib.Path or TextIO
-        Path to a ``*.par`` file, or a text file object to read from.
-
-    Returns
-    -------
-    dict
-        The ephemeris parameters as key-value pairs, keyed by their names in
-        the file (such as ``F0`` or ``PSRJ``). Values are parsed as follows:
-
-        - String parameters (``FILE``, ``PSR``, ``PSRJ``, ``RAJ``, ``DECJ``,
-          ``EPHEM``, ``CLK``, and ``BINARY``) are kept as strings.
-        - Recognised numerical parameters, including numbered ones (such as
-          ``F1``, ``FB0``, ``FD1``, or ``DMX_0001``), are parsed as floats.
-          Values that cannot be parsed are skipped.
-        - Uncertainties are stored under a separate key with an ``_ERR``
-          suffix (for example, ``F0_ERR``).
-        - ``JUMP`` lines are stored under ``JUMP_<flag value>`` (and
-          ``JUMP_<flag value>_ERR`` for their uncertainties).
-        - ``BETA`` and ``LAMBDA``, if present, are also copied to ``ELAT``
-          and ``ELONG``.
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a readable file object.
-
-    See Also
-    --------
-    writepar : Write out a TEMPO/TEMPO2 pulsar ephemerides (*.par) file.
-
-    Notes
-    -----
-    Parameters that are not recognised are skipped, and fit flags (``0`` or
-    ``1`` after a value) are not stored.
-
-    Examples
-    --------
-    >>> from priwo.timing import readpar
-    >>> par = readpar("test.par")
-    >>> f0, f0err = par["F0"], par["F0_ERR"]
     """
 
-    def read(f: TextIO) -> dict:
+    def read(f: TextFile) -> dict:
         meta = {}
         for line in f:
             if line.startswith("#"):
@@ -211,63 +165,26 @@ def readpar(fn: str | Path | TextIO) -> dict:
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writepar(meta: dict, fn: str | Path | TextIO) -> None:
+def writepar(meta: dict, fn: str | Path | TextFile) -> None:
     """
     Write out a TEMPO/TEMPO2 pulsar ephemerides (*.par) file.
-
-    Each key-value pair in `meta` is written on its own line, with the key
-    left-aligned in a 20-character column and the value right-aligned in a
-    19-character column.
-
-    Parameters
-    ----------
-    meta : dict
-        The ephemeris parameters as key-value pairs, keyed by their names in
-        the par file (such as ``F0`` or ``PSRJ``).
-    fn : str or pathlib.Path or TextIO
-        Path to the output file, or a text file object to write to. If a
-        path is given, the file is created, or overwritten if it exists.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a writable file object.
-
-    See Also
-    --------
-    readpar : Read in a TEMPO/TEMPO2 pulsar ephemerides (*.par) file.
-
-    Notes
-    -----
-    Keys with an ``_ERR`` suffix, as returned by `readpar`, are written as
-    separate lines rather than next to their parameters, and no fit flags
-    are written.
-
-    Examples
-    --------
-    >>> from priwo.timing import writepar
-    >>> writepar({"PSRJ": "J0000+0000", "F0": 1.0, "DM": 10.0}, "test.par")
     """
 
-    def write(meta: dict, f: TextIO) -> None:
+    def write(meta: dict, f: TextFile) -> None:
         f.write("\n".join([f"{key:20} {val:>19}" for key, val in meta.items()]))
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
         with open(fn, "w+") as f:
             write(meta, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         write(meta, fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."

@@ -46,69 +46,18 @@ The pulse phase and frequency at time T are then calculated as:
 
 from itertools import islice
 from pathlib import Path
-from typing import TextIO
 
 import numpy as np
 
+from priwo.typing import TextFile
 
-def readpolycos(fn: str | Path | TextIO) -> list[tuple[dict, np.ndarray]]:
+
+def readpolycos(fn: str | Path | TextFile) -> list[tuple[dict, np.ndarray]]:
     """
     Read in a TEMPO polynomial ephemerides (*.polycos) file.
-
-    Parameters
-    ----------
-    fn : str or pathlib.Path or TextIO
-        Path to a ``*.polycos`` file, or a text file object to read from.
-
-    Returns
-    -------
-    list of tuple of (dict, numpy.ndarray)
-        One ``(meta, coeffs)`` tuple per polyco set in the file, in the order
-        they appear. ``meta`` contains the following keys:
-
-        - ``psr``: Pulsar name.
-        - ``date``: Date (``dd-mmm-yy``).
-        - ``utc``: UTC (``hhmmss.ss``).
-        - ``tmid``: Reference epoch, TMID (MJD).
-        - ``tmidi``, ``tmidf``: Integer and fractional parts of ``tmid``,
-          kept separate to preserve precision.
-        - ``dm``: Dispersion measure (pc cm^-3).
-        - ``doppler``: Doppler shift due to the Earth's motion (already
-          multiplied by 1e-4).
-        - ``log10rms``: Log10 of the fit RMS residual, in periods.
-        - ``refphz``: Reference phase, RPHASE.
-        - ``f0``: Reference rotation frequency, F0 (Hz).
-        - ``obs``: Observatory number.
-        - ``dataspan``: Data span (minutes).
-        - ``ncoeff``: Number of coefficients.
-        - ``obsfreq``: Observing frequency (MHz).
-        - ``binphz``: Binary phase, or ``None`` if not present.
-
-        ``coeffs`` is a 1D array of ``float64`` polynomial coefficients.
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a readable file object.
-
-    See Also
-    --------
-    writepolycos : Write out a TEMPO polynomial ephemerides (*.polycos) file.
-
-    Notes
-    -----
-    See the module docstring for the file format, and for how to compute the
-    pulse phase and frequency from the coefficients.
-
-    Examples
-    --------
-    >>> from priwo.timing import readpolycos
-    >>> polycos = readpolycos("test.polycos")
-    >>> meta, coeffs = polycos[0]
-    >>> tmid, f0 = meta["tmid"], meta["f0"]
     """
 
-    def read(f: TextIO) -> list[tuple[dict, np.ndarray]]:
+    def read(f: TextFile) -> list[tuple[dict, np.ndarray]]:
         polycos = []
         for line in f:
             meta = {}
@@ -156,7 +105,7 @@ def readpolycos(fn: str | Path | TextIO) -> list[tuple[dict, np.ndarray]]:
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
@@ -165,52 +114,13 @@ def readpolycos(fn: str | Path | TextIO) -> list[tuple[dict, np.ndarray]]:
 
 def writepolycos(
     polycos: list[tuple[dict, np.ndarray]],
-    fn: str | Path | TextIO,
+    fn: str | Path | TextFile,
 ) -> None:
     """
     Write out a TEMPO polynomial ephemerides (*.polycos) file.
-
-    Parameters
-    ----------
-    polycos : list of tuple of (dict, numpy.ndarray)
-        One ``(meta, coeffs)`` tuple per polyco set, with the same structure
-        as that returned by `readpolycos`. The keys of each ``meta`` are
-        written in the order they appear, so they should follow the order
-        returned by `readpolycos`. ``tmidi`` and ``tmidf`` are skipped in
-        favour of ``tmid``, and ``doppler`` is multiplied by 1e4 before being
-        written. A ``binphz`` of ``None`` is written as blank space.
-    fn : str or pathlib.Path or TextIO
-        Path to the output file, or a text file object to write to. If a
-        path is given, the file is created, or overwritten if it exists.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a writable file object.
-    KeyError
-        If any ``meta`` contains a key that is not a polyco parameter.
-
-    See Also
-    --------
-    readpolycos : Read in a TEMPO polynomial ephemerides (*.polycos) file.
-
-    Notes
-    -----
-    Coefficients are written three per line, so only the first
-    ``3 * (ncoeff // 3)`` coefficients of each set are written.
-
-    Examples
-    --------
-    >>> from priwo.timing import readpolycos, writepolycos
-    >>> polycos = readpolycos("test.polycos")
-    >>> writepolycos(polycos, "copy.polycos")
     """
 
-    def write(polycos: list[tuple[dict, np.ndarray]], f: TextIO) -> None:
+    def write(polycos: list[tuple[dict, np.ndarray]], f: TextFile) -> None:
         templates: dict[str, str] = {
             "psr": "{:<10s}",
             "date": "{:>10s}",
@@ -247,7 +157,7 @@ def writepolycos(
         fn = Path(fn)
         with open(fn, "w+") as f:
             write(polycos, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         write(polycos, fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."

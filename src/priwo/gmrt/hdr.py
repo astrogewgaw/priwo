@@ -1,10 +1,11 @@
 import re
 from pathlib import Path
-from typing import TextIO
+
+from priwo.typing import TextFile
 
 
-def readgmrthdr(fn: str | Path | TextIO) -> dict:
-    def read(f: TextIO) -> dict:
+def readgmrthdr(fn: str | Path | TextFile) -> dict:
+    def read(f: TextFile) -> dict:
         def str2pol(s: str) -> int:
             return 1 if s == "Total I" else 4
 
@@ -78,24 +79,24 @@ def readgmrthdr(fn: str | Path | TextIO) -> dict:
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writegmrthdr(meta: dict, fn: str | Path) -> None:
+def writegmrthdr(meta: dict, fn: str | Path | TextFile) -> None:
     raise NotImplementedError
 
-    def write(meta: dict, f: TextIO) -> None:
+    def write(meta: dict, f: TextFile) -> None:
         pass
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
         with open(fn, "w+") as f:
             write(meta, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         write(meta, fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."

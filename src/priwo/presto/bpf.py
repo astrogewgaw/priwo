@@ -4,78 +4,18 @@ R/W PRESTO best pulse profile (*.bestprof) files.
 
 import re
 from pathlib import Path
-from typing import TextIO
 
 import numpy as np
 
+from priwo.typing import TextFile
 
-def readbpf(fn: str | Path | TextIO) -> tuple[dict, np.ndarray]:
+
+def readbpf(fn: str | Path | TextFile) -> tuple[dict, np.ndarray]:
     """
     Read in a PRESTO best pulse profile (*.bestprof) file.
-
-    The header lines (those beginning with ``#``) are parsed into a dictionary
-    of metadata, and the profile data that follow are parsed into an array.
-
-    Parameters
-    ----------
-    fn : str or pathlib.Path or TextIO
-        Path to a ``*.bestprof`` file, or a text file object to read from.
-
-    Returns
-    -------
-    meta : dict
-        The header parameters as key-value pairs. Numerical values are parsed
-        as floats, and string values (``filename``, ``candidate``, and
-        ``telescope``) are kept as strings. Header values that are not
-        available (such as ``"N/A"``) are set to ``None``. For parameters that
-        come with an uncertainty, the uncertainty is stored under a separate
-        key with an ``_err`` suffix (for example, ``ptopo`` and ``ptopo_err``).
-        The keys are:
-
-        - ``filename``, ``candidate``, ``telescope``: Input file, candidate
-          name, and telescope.
-        - ``tepoch``, ``bepoch``: Topocentric and barycentric epochs (MJD).
-        - ``tsamp``: Sampling time.
-        - ``nsamp``: Number of samples folded.
-        - ``datamean``, ``datastdv``: Mean and standard deviation of the data.
-        - ``nbins``: Number of bins in the profile.
-        - ``profmean``, ``profstdv``: Mean and standard deviation of the
-          profile.
-        - ``redchisqr``: Reduced chi-squared of the profile.
-        - ``sigma``: Significance of the profile (in units of sigma).
-        - ``dm``: Best dispersion measure (pc cm^-3).
-        - ``ptopo``, ``pdtopo``, ``pddtopo``: Topocentric period (ms), and its
-          first (s/s) and second (s/s^2) derivatives.
-        - ``pbary``, ``pdbary``, ``pddbary``: Barycentric period (ms), and its
-          first (s/s) and second (s/s^2) derivatives.
-        - ``porb``: Orbital period (s).
-        - ``asinibyc``: Projected semi-major axis (lt-s).
-        - ``eccentricity``: Orbital eccentricity.
-        - ``w``: Longitude of periastron (rad).
-        - ``tperi``: Epoch of periastron passage.
-    data : numpy.ndarray
-        The best pulse profile, as a 1D array of floats with one value per
-        phase bin.
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a readable file object.
-    KeyError
-        If the header contains a keyword that is not recognised.
-
-    See Also
-    --------
-    writebpf : Write out a PRESTO best pulse profile (*.bestprof) file.
-
-    Examples
-    --------
-    >>> from priwo.presto import readbpf
-    >>> meta, profile = readbpf("test.bestprof")
-    >>> dm, nbins = meta["dm"], meta["nbins"]
     """
 
-    def read(f: TextIO) -> tuple[dict, np.ndarray]:
+    def read(f: TextFile) -> tuple[dict, np.ndarray]:
         def numerals(s: str) -> float | list[float] | None:
             regex = re.compile(r"[+-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?")
             numbers = regex.findall(s)
@@ -138,14 +78,14 @@ def readbpf(fn: str | Path | TextIO) -> tuple[dict, np.ndarray]:
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writebpf(meta: dict, data: np.ndarray, fn: str | Path | TextIO) -> None:
+def writebpf(meta: dict, data: np.ndarray, fn: str | Path | TextFile) -> None:
     """
     Write out a PRESTO best pulse profile (*.bestprof) file.
 
@@ -159,7 +99,7 @@ def writebpf(meta: dict, data: np.ndarray, fn: str | Path | TextIO) -> None:
     data : numpy.ndarray
         The best pulse profile, as a 1D array with one value per phase bin.
         Each value is written on its own line, preceded by its bin index.
-    fn : str or pathlib.Path or TextIO
+    fn : str or pathlib.Path or text file object
         Path to the output file, or a text file object to write to.
 
     Returns
@@ -185,7 +125,7 @@ def writebpf(meta: dict, data: np.ndarray, fn: str | Path | TextIO) -> None:
     ...     writebpf(meta, profile, f)
     """
 
-    def write(meta: dict, data: np.ndarray, f: TextIO) -> None:
+    def write(meta: dict, data: np.ndarray, f: TextFile) -> None:
         strings = {}
         for key, val in meta.items():
             err = meta.get(f"{key}_err", None)
@@ -230,9 +170,9 @@ def writebpf(meta: dict, data: np.ndarray, fn: str | Path | TextIO) -> None:
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
-        with open(fn, "r") as f:
+        with open(fn, "w+") as f:
             return write(meta, data, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         return write(meta, data, fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."

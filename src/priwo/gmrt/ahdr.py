@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import TextIO
 
 import numpy as np
 
+from priwo.typing import TextFile
 
-def readgmrtahdr(fn: str | Path | TextIO) -> dict:
-    def read(f: TextIO) -> dict:
+
+def readgmrtahdr(fn: str | Path | TextFile) -> dict:
+    def read(f: TextFile) -> dict:
         def str2bool(s: str) -> bool:
             return {"ON": True, "OFF": False}.get(s, False)
 
@@ -93,24 +94,24 @@ def readgmrtahdr(fn: str | Path | TextIO) -> dict:
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writegmrtahdr(meta: dict, fn: str | Path | TextIO) -> None:
+def writegmrtahdr(meta: dict, fn: str | Path | TextFile) -> None:
     raise NotImplementedError
 
-    def write(meta: dict, f: TextIO) -> None:
+    def write(meta: dict, f: TextFile) -> None:
         pass
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
         with open(fn, "w+") as f:
             write(meta, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         write(meta, fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."

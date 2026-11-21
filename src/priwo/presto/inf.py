@@ -5,7 +5,8 @@ R/W PRESTO infodata (*.inf) files.
 import re
 from collections.abc import Callable
 from pathlib import Path
-from typing import TextIO
+
+from priwo.typing import TextFile
 
 infkeys: dict[str, tuple[str, Callable]] = {
     "Data file name without suffix": ("filename", str),
@@ -16,12 +17,12 @@ infkeys: dict[str, tuple[str, Callable]] = {
     "J2000 Declination     (dd:mm:ss.ssss)": ("dec", str),
     "Data observed by": ("observer", str),
     "Epoch of observation (MJD)": ("mjd", float),
-    "Barycentered?           (1=yes, 0=no)": ("barycentered", bool),
-    "Barycentered?           (1 yes, 0 no)": ("barycentered", bool),
+    "Barycentered?           (1=yes, 0=no)": ("barycentered", lambda x: int(x) == 1),
+    "Barycentered?           (1 yes, 0 no)": ("barycentered", lambda x: int(x) == 1),
     "Number of bins in the time series": ("nsamples", int),
     "Width of each time series bin (sec)": ("samptime", float),
-    "Any breaks in the data? (1=yes, 0=no)": ("breaks", bool),
-    "Any breaks in the data? (1 yes, 0 no)": ("breaks", bool),
+    "Any breaks in the data? (1=yes, 0=no)": ("breaks", lambda x: int(x) == 1),
+    "Any breaks in the data? (1 yes, 0 no)": ("breaks", lambda x: int(x) == 1),
     "Type of observation (EM band)": ("emband", str),
     "Beam diameter (arcsec)": ("beamdiam", float),
     "Dispersion measure (cm-3 pc)": ("dm", float),
@@ -39,53 +40,12 @@ infkeys: dict[str, tuple[str, Callable]] = {
 }
 
 
-def readinf(fn: str | Path | TextIO) -> dict:
+def readinf(fn: str | Path | TextFile) -> dict:
     """
     Read in a PRESTO infodata (*.inf) file.
-
-    Parameters
-    ----------
-    fn : str or pathlib.Path or TextIO
-        Path to a ``*.inf`` file, or a text file object to read from.
-
-    Returns
-    -------
-    dict
-        The metadata as key-value pairs. Each descriptive label in the file
-        is mapped to a short key (for example, ``"Epoch of observation
-        (MJD)"`` becomes ``mjd``) as listed in ``infkeys``, and its value is
-        converted to the corresponding type (``str``, ``int``, ``float``, or
-        ``bool``). Two more keys are always present:
-
-        - ``onoffs``: A list of ``[on, off]`` bin pairs, one per on/off pair
-          in the file. Empty if the data has no breaks.
-        - ``notes``: The additional notes at the end of the file, as a single
-          string with one note per line.
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a readable file object.
-
-    See Also
-    --------
-    writeinf : Write out a PRESTO infodata (*.inf) file.
-
-    Notes
-    -----
-    Which keys are present depends on the observation: radio observations
-    include keys such as ``cfreq``, ``bw``, ``nchannels``, and
-    ``chanwidth``, while X-ray observations include keys such as ``fov``,
-    ``cE``, and ``bpE``.
-
-    Examples
-    --------
-    >>> from priwo.presto import readinf
-    >>> meta = readinf("test.inf")
-    >>> mjd, dm = meta["mjd"], meta["dm"]
     """
 
-    def read(f: TextIO) -> dict:
+    def read(f: TextFile) -> dict:
         meta = {}
         notes = []
         onoffs = []
@@ -114,59 +74,19 @@ def readinf(fn: str | Path | TextIO) -> dict:
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writeinf(meta: dict, fn: str | Path | TextIO) -> None:
+def writeinf(meta: dict, fn: str | Path | TextFile) -> None:
     """
     Write out a PRESTO infodata (*.inf) file.
-
-    Parameters
-    ----------
-    meta : dict
-        The metadata as key-value pairs, with the same keys as those returned
-        by `readinf`. Keys are written in the order they appear in `meta`,
-        with boolean values written as ``1`` or ``0``. The ``breaks``,
-        ``onoffs``, and ``notes`` keys are required. If ``breaks`` is true,
-        the on/off bin pairs in ``onoffs`` are written as well.
-    fn : str or pathlib.Path or TextIO
-        Path to the output file, or a text file object to write to.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a writable file object.
-    KeyError
-        If `meta` contains a key that is not in ``infkeys``, or is missing
-        any of the required keys.
-
-    See Also
-    --------
-    readinf : Read in a PRESTO infodata (*.inf) file.
-
-    Notes
-    -----
-    The on/off bin pairs are inserted after the first 12 lines, which is
-    where PRESTO places them, so `meta` should list its keys in the same
-    order as `readinf` returns them.
-
-    Examples
-    --------
-    >>> from priwo.presto import readinf, writeinf
-    >>> meta = readinf("test.inf")
-    >>> with open("copy.inf", "w") as f:
-    ...     writeinf(meta, f)
     """
 
-    def write(meta: dict, f: TextIO) -> None:
+    def write(meta: dict, f: TextFile) -> None:
         lines = []
         inv = {name: desc for (desc, (name, _)) in infkeys.items()}
         for key, val in meta.items():
@@ -177,7 +97,7 @@ def writeinf(meta: dict, fn: str | Path | TextIO) -> None:
             )
         if meta["breaks"]:
             lines[12:12] = [
-                f"{f'On/Off bin pair #{i + 1:>3}':<37s}  =  {onoff[0]:<11d}, {onoff[1]:d}"
+                f"{f' On/Off bin pair #{i + 1:>3}':<37s}  =  {onoff[0]:<11d}, {onoff[1]:d}"
                 for i, onoff in enumerate(meta["onoffs"])
             ]
         f.write("\n".join(lines))
@@ -186,9 +106,9 @@ def writeinf(meta: dict, fn: str | Path | TextIO) -> None:
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
-        with open(fn, "r") as f:
+        with open(fn, "w+") as f:
             return write(meta, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         return write(meta, fn)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."

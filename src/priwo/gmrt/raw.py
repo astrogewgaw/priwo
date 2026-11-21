@@ -1,14 +1,14 @@
 from pathlib import Path
-from typing import BinaryIO
 
 import numpy as np
 
 from priwo.gmrt.ahdr import readgmrtahdr, writegmrtahdr
 from priwo.gmrt.hdr import readgmrthdr, writegmrthdr
+from priwo.typing import BinaryFile
 
 
-def readgmrt(fn: str | Path | BinaryIO) -> tuple[dict, np.ndarray]:
-    def read(f: BinaryIO) -> tuple[dict, np.ndarray]:
+def readgmrt(fn: str | Path | BinaryFile) -> tuple[dict, np.ndarray]:
+    def read(f: BinaryFile) -> tuple[dict, np.ndarray]:
         meta = readgmrthdr(str(f.name) + ".hdr")
         nbits = meta["nbits"]
         data = np.fromfile(
@@ -32,15 +32,15 @@ def readgmrt(fn: str | Path | BinaryIO) -> tuple[dict, np.ndarray]:
         fn = Path(fn)
         with open(fn, "rb") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, BinaryFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writegmrt(meta: dict, data: np.ndarray, fn: str | Path | BinaryIO) -> None:
-    def write(meta: dict, data: np.ndarray, f: BinaryIO) -> None:
+def writegmrt(meta: dict, data: np.ndarray, fn: str | Path | BinaryFile) -> None:
+    def write(meta: dict, data: np.ndarray, f: BinaryFile) -> None:
         writegmrthdr(meta, str(f.name) + ".hdr")
         f.write(data.T.tobytes())
 
@@ -48,15 +48,15 @@ def writegmrt(meta: dict, data: np.ndarray, fn: str | Path | BinaryIO) -> None:
         fn = Path(fn)
         with open(fn, "wb+") as f:
             write(meta, data, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, BinaryFile):
         write(meta, data, fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def readgmrt2(fn: str | Path | BinaryIO) -> tuple[dict, np.ndarray]:
-    def read(f: BinaryIO) -> tuple[dict, np.ndarray]:
+def readgmrt2(fn: str | Path | BinaryFile) -> tuple[dict, np.ndarray]:
+    def read(f: BinaryFile) -> tuple[dict, np.ndarray]:
         meta = readgmrtahdr(str(f.name) + ".ahdr")
         nbits = meta["nbits"]
         data = np.fromfile(
@@ -80,15 +80,15 @@ def readgmrt2(fn: str | Path | BinaryIO) -> tuple[dict, np.ndarray]:
         fn = Path(fn)
         with open(fn, "rb") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, BinaryFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writegmrt2(meta: dict, data: np.ndarray, fn: str | Path | BinaryIO) -> None:
-    def write(meta: dict, data: np.ndarray, f: BinaryIO) -> None:
+def writegmrt2(meta: dict, data: np.ndarray, fn: str | Path | BinaryFile) -> None:
+    def write(meta: dict, data: np.ndarray, f: BinaryFile) -> None:
         writegmrtahdr(meta, str(f.name) + ".ahdr")
         f.write(data.T.tobytes())
 
@@ -96,7 +96,7 @@ def writegmrt2(meta: dict, data: np.ndarray, fn: str | Path | BinaryIO) -> None:
         fn = Path(fn)
         with open(fn, "wb+") as f:
             write(meta, data, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, BinaryFile):
         write(meta, data, fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."

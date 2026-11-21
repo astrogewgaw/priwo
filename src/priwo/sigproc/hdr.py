@@ -5,7 +5,8 @@ R/W SIGPROC headers.
 import math
 import struct
 from pathlib import Path
-from typing import BinaryIO
+
+from priwo.typing import BinaryFile
 
 telids: dict[str, int] = {
     "Fake": 0,
@@ -105,88 +106,56 @@ hdrmap: dict[str, str] = {
     "accel": "d",
 }
 
+
+ENDFLAG: str = "HEADER_END"
+STARTFLAG: str = "HEADER_START"
 RADTODEG: float = float("57.295779513082320876798154814105170332405472466564")
 ARCSECTORAD: float = float("4.8481368110953599358991410235794797595635330237270e-6")
 
 
-def readhdr(fn: str | Path | BinaryIO) -> dict:
+def readhdr(fn: str | Path | BinaryFile) -> dict:
     """
     Read in a SIGPROC header.
-
-    The byte order of the header is detected automatically: the header is
-    first parsed as little-endian, and if the ``HEADER_START`` keyword is not
-    found, it is parsed again as big-endian.
-
-    Parameters
-    ----------
-    fn : str or pathlib.Path or BinaryIO
-        Path to a SIGPROC file (such as a filterbank or time series file), or
-        a binary file object positioned at the start of the header.
-
-    Returns
-    -------
-    dict
-        The header parameters as key-value pairs. Along with the parameters
-        stored in the header, the following derived keys are also added:
-
-        - ``endian``: Byte order of the header (``"little"`` or ``"big"``).
-        - ``size``: Size of the header in bytes.
-        - ``telescope``: Name of the telescope, if ``telescope_id`` is present.
-        - ``machine``: Name of the backend, if ``machine_id`` is present.
-        - ``rahms``, ``rarad``, ``radeg``: Right ascension as a ``"HHhMMmSS.Ss"``
-          string, in radians, and in degrees, if ``src_raj`` is present.
-        - ``decdms``, ``decrad``, ``decdeg``: Declination as a ``"DDdMMmSS.Ss"``
-          string, in radians, and in degrees, if ``src_dej`` is present.
-
-    Raises
-    ------
-    ValueError
-        If the file does not begin with a valid ``HEADER_START`` keyword in
-        either byte order.
-    KeyError
-        If the header contains a keyword that is not in ``hdrmap``.
-
-    See Also
-    --------
-    writehdr : Write out a SIGPROC header.
-
-    Examples
-    --------
-    >>> from priwo.sigproc.hdr import readhdr
-    >>> meta = readhdr("test.fil")
-    >>> nchans, tsamp = meta["nchans"], meta["tsamp"]
     """
 
-    def read(f: BinaryIO) -> dict:
+    def read(f: BinaryFile) -> dict:
+        def chkread(N: int) -> bytes:
+            data = f.read(N)
+            if len(data) != N:
+                raise ValueError("UNEXPECTED END OF SIGPROC HDR. ABORT.")
+            return data
+
         meta = {}
-        swp = "<"
-        key = f.read(struct.unpack(f"{swp}i", f.read(4))[0]).decode("utf-8")
-        if key != "HEADER_START":
-            swp = ">"
-            key = f.read(struct.unpack(f"{swp}i", f.read(4))[0]).decode("utf-8")
-            if key != "HEADER_START":
-                raise ValueError("NOT A VALID SIGPROC HDR. ABORT.")
+        f.seek(0)
+        for swp in ["<", ">"]:
+            if (size := struct.unpack(swp + "i", chkread(4))[0]) == len(STARTFLAG):
+                key = chkread(size).decode("utf-8")
+                if key == STARTFLAG:
+                    break
+            else:
+                f.seek(0)
+        else:
+            raise ValueError("NOT A VALID SIGPROC HDR. ABORT.")
         while True:
-            key = f.read(struct.unpack(f"{swp}i", f.read(4))[0]).decode("utf-8")
-            if key == "HEADER_END":
+            size = struct.unpack(f"{swp}i", chkread(4))[0]
+            key = chkread(size).decode("utf-8")
+            if key == ENDFLAG:
                 break
+            try:
+                fmt = hdrmap[key]
+            except KeyError:
+                raise ValueError("INVALID KEY IN SIGPROC HDR. ABORT.") from None
             val = {
-                "flag": None,
-                "d": lambda f: struct.unpack(f"{swp}d", f.read(8))[0],
-                "i": lambda f: struct.unpack(f"{swp}i", f.read(4))[0],
-                "b": lambda f: struct.unpack(f"{swp}b", f.read(1))[0],
-                "s": lambda f: f.read(struct.unpack(f"{swp}i", f.read(4))[0]).decode(
+                "d": lambda f: struct.unpack(f"{swp}d", chkread(8))[0],
+                "i": lambda f: struct.unpack(f"{swp}i", chkread(4))[0],
+                "b": lambda f: struct.unpack(f"{swp}b", chkread(1))[0],
+                "s": lambda f: chkread(struct.unpack(f"{swp}i", chkread(4))[0]).decode(
                     "utf-8"
                 ),
-            }[hdrmap[key]](f)
+            }[fmt](f)
             meta[key] = val
         meta["endian"] = {">": "big", "<": "little"}[swp]
         meta["size"] = f.tell()
-
-        if (macid := meta.get("machine_id", None)) is not None:
-            meta["machine"] = meta.get("machine", id2mac[macid])
-        if (telid := meta.get("telescope_id", None)) is not None:
-            meta["telescope"] = meta.get("telescope", id2tel[telid])
 
         if (dec := meta.get("src_dej", None)) is not None:
             dec = float(dec)
@@ -217,65 +186,23 @@ def readhdr(fn: str | Path | BinaryIO) -> dict:
         fn = Path(fn)
         with open(fn, "rb") as f:
             return read(f)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, BinaryFile):
         return read(fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."
         raise TypeError(msg)
 
 
-def writehdr(meta: dict, fn: str | Path | BinaryIO) -> None:
+def writehdr(meta: dict, fn: str | Path | BinaryFile) -> None:
     """
     Write out a SIGPROC header.
-
-    Parameters
-    ----------
-    meta : dict
-        The header parameters as key-value pairs. Every key must be a valid
-        SIGPROC keyword listed in ``hdrmap``, except for the derived keys added
-        by `readhdr` (``size``, ``endian``, ``rahms``, ``rarad``, ``radeg``,
-        ``decdms``, ``decrad`` and ``decdeg``), which are skipped. The value of
-        ``endian`` (``"little"`` or ``"big"``, defaulting to ``"little"``)
-        sets the byte order of the written header.
-    fn : str or pathlib.Path or BinaryIO
-        Path to the output file, or a binary file object to write to. If a
-        path is given, the file is created, or overwritten if it exists.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    KeyError
-        If `meta` contains a key that is neither a valid SIGPROC keyword nor
-        one of the skipped derived keys, or if ``endian`` is not ``"little"``
-        or ``"big"``.
-    struct.error
-        If a value cannot be packed into the type its keyword requires.
-
-    See Also
-    --------
-    readhdr : Read in a SIGPROC header.
-
-    Notes
-    -----
-    Only the header is written; the data that follows it is not. Keys are
-    written in the order they appear in `meta`.
-
-    Examples
-    --------
-    >>> from priwo.sigproc.hdr import readhdr, writehdr
-    >>> meta = readhdr("test.fil")
-    >>> writehdr(meta, "copy.hdr")
     """
 
-    def write(meta: dict, f: BinaryIO) -> None:
-        key = "HEADER_START"
+    def write(meta: dict, f: BinaryFile) -> None:
         swp = {"big": ">", "little": "<"}[meta.get("endian", "little")]
-        f.write(struct.pack(f"{swp}i", len(key)) + key.encode("utf-8"))
+        data = struct.pack(f"{swp}i", len(STARTFLAG)) + STARTFLAG.encode("utf-8")
         for key, val in meta.items():
-            if key in [
+            if key in {
                 "size",
                 "rahms",
                 "rarad",
@@ -284,26 +211,27 @@ def writehdr(meta: dict, fn: str | Path | BinaryIO) -> None:
                 "decrad",
                 "decdeg",
                 "endian",
-            ]:
+            }:
                 continue
-            f.write(struct.pack(f"{swp}i", len(key)) + key.encode("utf-8"))
-            f.write(
-                {
-                    "flag": None,
-                    "d": lambda x: struct.pack(f"{swp}d", x),
-                    "i": lambda x: struct.pack(f"{swp}i", x),
-                    "b": lambda x: struct.pack(f"{swp}b", x),
-                    "s": lambda x: struct.pack(f"{swp}i", len(x)) + x.encode("utf-8"),
-                }[hdrmap[key]](val)
-            )
-        key = "HEADER_END"
-        f.write(struct.pack(f"{swp}i", len(key)) + key.encode("utf-8"))
+            try:
+                fmt = hdrmap[key]
+            except KeyError:
+                raise ValueError("INVALID KEY FOR SIGPROC HDR. ABORT.") from None
+            data = data + struct.pack(f"{swp}i", len(key)) + key.encode("utf-8")
+            data = data + {
+                "d": lambda x: struct.pack(f"{swp}d", x),
+                "i": lambda x: struct.pack(f"{swp}i", x),
+                "b": lambda x: struct.pack(f"{swp}b", x),
+                "s": lambda x: struct.pack(f"{swp}i", len(y := x.encode("utf-8"))) + y,
+            }[fmt](val)
+        data = data + struct.pack(f"{swp}i", len(ENDFLAG)) + ENDFLAG.encode("utf-8")
+        f.write(data)
 
     if isinstance(fn, (str, Path)):
         fn = Path(fn)
         with open(fn, "wb+") as f:
             return write(meta, f)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, BinaryFile):
         return write(meta, fn)
     else:
         msg = f"EXPECTED PATH OR BINARY FILE OBJECT, GOT {type(fn).__name__}. ABORT."

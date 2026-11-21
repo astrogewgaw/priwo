@@ -64,67 +64,20 @@ TEMPO2 Format
 """
 
 from pathlib import Path
-from typing import Literal, TextIO
+from typing import Literal
+
+from priwo.typing import TextFile
 
 
 def readtoas(
-    fn: str | Path | TextIO,
+    fn: str | Path | TextFile,
     fmt: Literal["tempo2", "princeton"],
 ) -> list[dict]:
     """
     Read in TOAs.
-
-    Parameters
-    ----------
-    fn : str or pathlib.Path or TextIO
-        Path to a TOA (``*.tim``) file, or a text file object to read from.
-    fmt : {"tempo2", "princeton"}
-        Format of the TOAs. See the module docstring for a description of
-        each format.
-
-    Returns
-    -------
-    list of dict
-        One dictionary per TOA, in the order they appear. The keys are:
-
-        - ``toamjdi``: Integer part of the TOA (MJD), as an int.
-        - ``toamjdf``: Fractional part of the TOA (days), as a float. The two
-          parts are kept separate to preserve precision.
-        - ``toaerr``: TOA uncertainty (microseconds).
-        - ``freq``: Observing frequency (MHz).
-        - ``dm``: DM correction (pc cm^-3), or ``0.0`` if not given.
-        - ``obs``: Observatory code.
-        - ``name``: Name of the profile data file (for TEMPO2 TOAs), or the
-          contents of columns 3 to 15 (for Princeton TOAs).
-        - ``flags``: Dictionary of flags (for TEMPO2 TOAs), with the leading
-          ``-`` removed from each flag name. The ``-dm`` flag is moved to
-          ``dm``. Always empty for Princeton TOAs.
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a readable file object.
-    ValueError
-        If `fmt` is not a recognised format, or if a TEMPO2 TOA has fewer
-        than five fields.
-
-    See Also
-    --------
-    writetoas : Write out TOAs.
-
-    Notes
-    -----
-    Every line in the file is parsed as a TOA, so the file should not
-    contain any commands (such as ``FORMAT 1``), comments, or blank lines.
-
-    Examples
-    --------
-    >>> from priwo.timing import readtoas
-    >>> toas = readtoas("test.tim", fmt="tempo2")
-    >>> mjds = [toa["toamjdi"] + toa["toamjdf"] for toa in toas]
     """
 
-    def read(f: TextIO, fmt: Literal["tempo2", "princeton"]) -> list[dict]:
+    def read(f: TextFile, fmt: Literal["tempo2", "princeton"]) -> list[dict]:
         toas = []
         for line in f:
             match fmt:
@@ -180,7 +133,7 @@ def readtoas(
         fn = Path(fn)
         with open(fn, "r") as f:
             return read(f, fmt=fmt)
-    elif hasattr(fn, "read"):
+    elif isinstance(fn, TextFile):
         return read(fn, fmt=fmt)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
@@ -189,55 +142,14 @@ def readtoas(
 
 def writetoas(
     toas: list[dict],
-    fn: str | Path | TextIO,
+    fn: str | Path | TextFile,
     fmt: Literal["tempo2", "princeton"],
 ) -> None:
     """
     Write out TOAs.
-
-    Parameters
-    ----------
-    toas : list of dict
-        One dictionary per TOA, with the same keys as those returned by
-        `readtoas`: ``toamjdi``, ``toamjdf``, ``toaerr``, ``freq``, ``dm``,
-        ``obs``, ``name``, and ``flags``. A ``dm`` of ``0.0`` is not written.
-    fn : str or pathlib.Path or TextIO
-        Path to the output file, or a text file object to write to. If a
-        path is given, the file is created, or overwritten if it exists.
-    fmt : {"tempo2", "princeton"}
-        Format of the TOAs. See the module docstring for a description of
-        each format.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    TypeError
-        If `fn` is neither a path nor a writable file object.
-    ValueError
-        If `fmt` is not a recognised format.
-    KeyError
-        If any TOA is missing a required key.
-
-    See Also
-    --------
-    readtoas : Read in TOAs.
-
-    Notes
-    -----
-    TOAs are written with 13 decimal places in the fractional day. No
-    ``FORMAT 1`` line is written for TEMPO2 TOAs.
-
-    Examples
-    --------
-    >>> from priwo.timing import readtoas, writetoas
-    >>> toas = readtoas("test.tim", fmt="tempo2")
-    >>> writetoas(toas, "copy.tim", fmt="tempo2")
     """
 
-    def write(toas: list[dict], f: TextIO, fmt: Literal["tempo2", "princeton"]) -> None:
+    def write(toas: list[dict], f: TextFile, fmt: Literal["tempo2", "princeton"]) -> None:
         for toa in toas:
             dm = toa["dm"]
             obs = toa["obs"]
@@ -267,7 +179,7 @@ def writetoas(
         fn = Path(fn)
         with open(fn, "w+") as f:
             write(toas, f, fmt=fmt)
-    elif hasattr(fn, "write"):
+    elif isinstance(fn, TextFile):
         write(toas, fn, fmt=fmt)
     else:
         msg = f"EXPECTED PATH OR TEXT FILE OBJECT, GOT {type(fn).__name__}. ABORT."
