@@ -22,9 +22,8 @@ def readfil(fn: str | Path | BinaryFile) -> tuple[dict, np.ndarray]:
         meta = readhdr(f)
         nbits = meta["nbits"]
         endian = meta["endian"]
-        data = np.fromfile(
-            f,
-            dtype={
+        dtype = np.dtype(
+            {
                 1: np.uint8,
                 2: np.uint8,
                 4: np.uint8,
@@ -32,14 +31,15 @@ def readfil(fn: str | Path | BinaryFile) -> tuple[dict, np.ndarray]:
                 64: np.float64,
                 8: np.int8 if meta.get("signed", False) else np.uint8,
                 16: np.int16 if meta.get("signed", False) else np.uint16,
-            }[nbits],
-        )
+            }[nbits]
+        ).newbyteorder(endian)
+        data = np.fromfile(f, dtype=dtype.newbyteorder(endian))
         if nbits in [1, 2, 4]:
             data = unpack(
                 cast(NDArray[np.uint8], data),
                 nbits=nbits,
                 parallel=True,
-                bitorder=endian,
+                bitorder="little",
             )
         data = data.reshape(-1, meta["nchans"]).T
         return meta, data
@@ -61,19 +61,42 @@ def writefil(meta: dict, data: np.ndarray, fn: str | Path | BinaryFile) -> None:
     """
 
     def write(meta: dict, data: np.ndarray, f: BinaryFile) -> None:
-        writehdr(meta, f)
+        if data.size == 0:
+            raise ValueError("NO DATA TO WRITE. ABORT.")
+        if data.ndim != 2:
+            raise ValueError("DATA OF WRONG SHAPE. ABORT.")
+        nf, _ = data.shape
+        if nf != meta["nchans"]:
+            raise ValueError(f"DATA WITH WRONG NUMBER OF CHANNELS (= {nf}). ABORT.")
+
         nbits = meta["nbits"]
         endian = meta["endian"]
+        if (
+            data.dtype.newbyteorder("=")
+            != (
+                {
+                    1: np.uint8,
+                    2: np.uint8,
+                    4: np.uint8,
+                    32: np.float32,
+                    64: np.float64,
+                    8: np.int8 if meta.get("signed", False) else np.uint8,
+                    16: np.int16 if meta.get("signed", False) else np.uint16,
+                }[nbits]
+            )
+        ):
+            raise TypeError("DATA OF WRONG TYPE. ABORT.")
+        writehdr(meta, f)
         f.write(
             (
                 pack(
                     cast(NDArray[np.uint8], data.T),
                     nbits=nbits,
                     parallel=True,
-                    bitorder=endian,
+                    bitorder="little",
                 )
                 if nbits in [1, 2, 4]
-                else data.T
+                else data.T.astype(data.dtype.newbyteorder(endian), copy=False)
             ).tobytes()
         )
 
